@@ -49,6 +49,8 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
         if not os.path.isdir(self.output_path_label.text()) or not os.path.isdir(self.input_path_label.text()) or not os.path.isfile(detect_image_path):
             self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz")
         else:
+            self.progress_gif.setMovie(self.load_gif)
+            self.load_gif.start()
             self.info_table_label.setRowCount(0)
                     #Her işletim sisteminde çalışması için dosya yolları os.path.join fonksiyonu ile tekrar oluşturuluyor...
             output_folder_path = self.output_path_label.text().split("/")[0] + "/"
@@ -127,6 +129,8 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
             self.input_path_label.setEnabled(True)
             self.output_path_label.setEnabled(True)
             self.detect_face_image_select_button.setEnabled(True)
+            self.load_gif.stop()
+            self.progress_gif.clear()
             self.timer_thread_fd.quit()
         except:
             pass
@@ -145,9 +149,9 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
             pass
         try:
             if self.worker_fd.stop_bool:
-                self.question_messagebox("İşlem Durduruldu", "Çıktı Klasörüne Gitmek İster Misiniz?")
+                self.question_messagebox("İşlem Durduruldu", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b><br>Bu bir demo sürümdür, en fazla 10 görüntü inceleyebilirsiniz.<br><a href='https://www.forencrypt.com/iletisim/'>Tam sürüm için bize ulaşın</a>")
             else:
-                self.question_messagebox("İşlem Bitti", "Çıktı Klasörüne Gitmek İster Misiniz?(Demo versiyonda en fazla 5 resime izin veriliyor.<a href='https://www.forencrypt.com/iletisim/'>İletişim</a>!)")
+                self.question_messagebox("İşlem Bitti", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b><br>Bu bir demo sürümdür, en fazla 10 görüntü inceleyebilirsiniz.<br><a href='https://www.forencrypt.com/iletisim/'>Tam sürüm için bize ulaşın</a>")
         except:
             pass
    ##
@@ -195,11 +199,13 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
                 
                 self.info_table_label.insertRow(rowPosition)
                 self.info_table_label.setItem(rowPosition , 0, QtWidgets.QTableWidgetItem(os.path.basename(info_array[1])))
-                if info_array[2] == "":
-                    self.info_table_label.setItem(rowPosition , 1, QtWidgets.QTableWidgetItem("Bulunamadı"))
+
+                self.info_table_label.setItem(rowPosition , 1, QtWidgets.QTableWidgetItem(info_array[2]))
+                if info_array[2] == "Var":
+                    self.info_table_label.item(rowPosition, 1).setBackground(QtGui.QColor(0,255,0))
                 else:
-                    self.info_table_label.setItem(rowPosition , 1, QtWidgets.QTableWidgetItem(info_array[2]))
-                self.info_table_label.setItem(rowPosition , 2, QtWidgets.QTableWidgetItem(info_array[3]))
+                    self.info_table_label.item(rowPosition, 1).setBackground(QtGui.QColor(255,0,0))
+                    
                 item = self.info_table_label.item(rowPosition, 0)
                 item.setWhatsThis(info_array[1])
                 #self.process_text.append(info_array[1])

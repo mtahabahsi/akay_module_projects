@@ -23,7 +23,11 @@ QLabel#output_path_label {
 }
 
 QLCDNumber#lcd_process_timer {
-    background-color: #082567;
+    background-color: #18346C;
+    border: 2px solid rgb(113, 113, 113);
+    border-width: 2px;
+    border-radius: 10px;
+    color: rgb(255, 255, 255);
 }
 
 QLabel#tool_title_label {
@@ -39,11 +43,12 @@ QLabel#tool_title_label {
 }
 
 QPushButton#analyze_button {
-    border: solid;
-    border-color: red;
+    border: 2px solid rgb(113, 113, 113);
+    border-width: 2px;
     border-radius: 10px;
-    background-color: #002DB3;
+    background-color: #18346C;
     color: white;
+    font-weight: bold;
 }
 
 QPushButton#analyze_button:hover {
@@ -55,11 +60,12 @@ QPushButton#analyze_button:disabled {
 }
 
 QPushButton#stop_process_button {
-    border: solid;
-    border-color: red;
+    border: 2px solid rgb(113, 113, 113);
+    border-width: 2px;
     border-radius: 10px;
     background-color: #B30000;
     color: white;
+    font-weight: bold;
 }
 
 QPushButton#stop_process_button:hover {

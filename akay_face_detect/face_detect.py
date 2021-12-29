@@ -73,13 +73,12 @@ class face_recognition(QObject):
 
 
     def run(self):
-        print("run giriş")
         start_time = datetime.now()
 
         path = os.path.join(self.output_path, "bulunanlar")
         os.makedirs(path, exist_ok=True)
 
-        self.datas = pd.DataFrame(columns=["Aranan Yüz", "Arandığı Resim", "Benzerlik Değer", "Sonuç"])
+        self.datas = pd.DataFrame(columns=["Aranan Yüz", "Arandığı Resim", "Sonuç"])
 
 
         all_images = self.get_image_files()
@@ -87,10 +86,7 @@ class face_recognition(QObject):
         self.info_text.emit(["0/" + str(len(all_images)), "empty","empty"])
 
         ##Girdi resminden yüzün çıkartılması 
-
-
         #image = cv2.imread(self.detect_face_image)
-
         image = cv2.imdecode(np.fromfile(self.detect_face_image, dtype=np.uint8),
                    cv2.IMREAD_UNCHANGED)
 
@@ -178,22 +174,22 @@ class face_recognition(QObject):
                         except:
                             pass
 
-                    excel_array = [self.detect_face_image, file, str(distance), "Bulundu" if found else "Bulunamadı"]
+                    excel_array = [self.detect_face_image, file, "Var" if found else "Yok"]
                     self.datas.loc[count] = excel_array
-                    self.info_text.emit([str(count + 1) +  "/" + str(len(all_images)) , str(file), str(distance), "Bulundu" if found else "Bulunamadı"])
+                    self.info_text.emit([str(count + 1) +  "/" + str(len(all_images)) , str(file), "Var" if found else "Yok"])
                     if found:
                         shutil.copy2(file, os.path.join(self.output_path, "bulunanlar"))
 
 
                 except:
-                    self.info_text.emit([str(count + 1) +  "/" + str(len(all_images)) , str(file), "Yüz Bulunamadı!", "Bulunamadı"])
-                    self.datas.loc[count] = [self.detect_face_image, file, "Yüz Bulunamadı!", "Bulunamadı"]
+                    self.info_text.emit([str(count + 1) +  "/" + str(len(all_images)) , str(file), "Yok"])
+                    self.datas.loc[count] = [self.detect_face_image, file, "Yok"]
                     pass
                 
                 count += 1
 
-                ##Demo sürüm özelliği
-                if count >= 5:
+                #Demo sürüm özelliği
+                if count >= 10:
                     break
 
 
@@ -205,8 +201,8 @@ class face_recognition(QObject):
                 if self.stop_bool:
                     status = "Durduruldu"
                 else:
-                    status = ":::Hepsi incelendi:::"
-                    self.info_text.emit([str(len(all_images))  + "/" + str(len(all_images)) , "empty","empty"])
+                    status = ":::İnceleme Tamamlandı:::"
+                    #self.info_text.emit([str(len(all_images))  + "/" + str(len(all_images)) , "empty","empty"])
             except:
                 pass
 

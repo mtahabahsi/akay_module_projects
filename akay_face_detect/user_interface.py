@@ -21,7 +21,7 @@ class face_detection_ui(object):
 
         self.empty_label = QtWidgets.QLabel()
         self.empty_label.setObjectName("empty_label")
-        self.setWindowTitle("AKAY")
+        self.setWindowTitle("AKAY - Yüz Tanıma")
         self.setWindowIcon(QtGui.QIcon('icons/icon.png'))
 
 
@@ -111,12 +111,22 @@ class face_detection_ui(object):
         self.output_image = QtWidgets.QLabel()
         self.output_image.setObjectName("output_image")
         self.output_image.setAlignment(QtCore.Qt.AlignCenter)
+        
+        self.progress_gif = QtWidgets.QLabel()
+        self.progress_gif.setObjectName("progress_gif")
+        self.progress_gif.setAlignment(QtCore.Qt.AlignCenter)
+        
+        logo_path = "icons/load.gif"
+        self.load_gif = QtGui.QMovie(logo_path)
+        
+        #self.progress_gif.setMovie(self.load_gif)
+        #self.load_gif.start()
 
         self.image_glayout = QtWidgets.QGridLayout()
 
         self.image_glayout.addWidget(self.empty_label,0,0 , 1, 2)
         self.image_glayout.addWidget(self.process_image,0,2, 1, 10)
-        self.image_glayout.addWidget(self.empty_label,0,12, 1, 2)
+        self.image_glayout.addWidget(self.progress_gif,0,12, 1, 2)
         self.image_glayout.addWidget(self.output_image,0,14, 1, 10)
         self.image_glayout.addWidget(self.empty_label,0,24, 1, 2)
 
@@ -133,8 +143,9 @@ class face_detection_ui(object):
         self.stop_process_button.setObjectName("stop_process_button")
         self.stop_process_button.setMinimumWidth(50)
         self.stop_process_button.setMinimumHeight(40)
-
-
+        
+    
+    
         buttons_classes_glayout = QtWidgets.QGridLayout()
         buttons_classes_glayout.addWidget(self.empty_label, 0 , 0 , 3, 10)
         buttons_classes_glayout.addWidget(self.empty_label, 3, 0 , 2, 8)
@@ -152,18 +163,17 @@ class face_detection_ui(object):
         self.info_table_label.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.info_table_label.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
         self.info_table_label.setObjectName("info_table_label")
-        self.info_table_label.setColumnCount(3)
+        self.info_table_label.setColumnCount(2)
         self.info_table_label.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         self.info_table_label.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
         self.info_table_label.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.info_table_label.setHorizontalHeaderItem(2, item)
+
 
         #info view labelın ayarlanması 
-        self.info_table_label.setColumnWidth(0,250)
-        self.info_table_label.setColumnWidth(1,250)
+        self.info_table_label.setColumnWidth(0,350)
+        self.info_table_label.setColumnWidth(1,80)
         self.info_table_label.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.info_table_label.cellDoubleClicked.connect(self.open_image)
         #----------------------------
@@ -182,7 +192,7 @@ class face_detection_ui(object):
         self.timer_table_glayout.addWidget(self.info_table_label, 0,0,12,24)
         self.timer_table_glayout.addWidget(self.empty_label, 0, 24, 12, 2)
         self.timer_table_glayout.addWidget(self.progress_bar, 4,26,1,6)
-        self.timer_table_glayout.addWidget(self.remaining_process_label, 5,26,1,6)
+        self.timer_table_glayout.addWidget(self.remaining_process_label, 5,26,1,5)
         self.timer_table_glayout.addWidget(self.lcd_process_timer, 8, 28, 2, 2)
         self.timer_table_glayout.addWidget(self.empty_label, 0, 32, 12, 2)
 
@@ -274,16 +284,14 @@ class face_detection_ui(object):
         item = self.info_table_label.horizontalHeaderItem(0)
         item.setText("Resmin Yolu")
         item = self.info_table_label.horizontalHeaderItem(1)
-        item.setText("Benzerlik Değeri")
-        item = self.info_table_label.horizontalHeaderItem(2)
         item.setText("Sonuç")
 
         #iconlar ve resimler tanıtıldı
-        logo_path = "icons/forencrypt.jpg"
+        logo_path = "icons/face-detection1.png"
         image = self.process_image
         self.add_image(image_path=logo_path, image_label=image)
 
-        logo_path = "icons/forencrypt-out.jpg"
+        logo_path = "icons/face-detection.png"
         image = self.output_image
         self.add_image(image_path=logo_path, image_label=image)
         #------
@@ -306,7 +314,7 @@ class face_detection_ui(object):
     def input_folder_bar_click(self):
         response = QtWidgets.QFileDialog.getExistingDirectory(
             self,
-            caption='Klasör Seçiniz'
+            caption='Girdi Klasörünü Seçiniz'
         )
 
         if str(response)  != "":
@@ -318,7 +326,7 @@ class face_detection_ui(object):
     def output_folder_bar_click(self):
         response = QtWidgets.QFileDialog.getExistingDirectory(
             self,
-            caption='Klasör Seçiniz'
+            caption='Çıktı Klasörünü Seçiniz'
         )
 
         if str(response)  != "":
