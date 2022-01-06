@@ -32,6 +32,7 @@ class face_recognition(QObject):
     detect_face_image = str
 
     detect_error = pyqtSignal(list)
+    license = bool
 
 
     def get_image_files(self):
@@ -189,7 +190,7 @@ class face_recognition(QObject):
                 count += 1
 
                 #Demo sürüm özelliği
-                if count >= 10:
+                if count >= 10 and self.license == False:
                     break
 
 

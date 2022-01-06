@@ -1,16 +1,15 @@
 #! /usr/bin/env python
 # -*- coding: UTF-8 -*-
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox,QLineEdit, QInputDialog
 from PyQt5.QtCore import Qt, QObject, pyqtSignal,QThread
 from PyQt5.QtGui import QPixmap
-import sys, qdarkstyle, time, os, webbrowser
+import sys, qdarkstyle, time, os, webbrowser,re,uuid,pymongo,requests, json
 import user_interface 
 from face_detect import face_recognition
 from PyQt5 import QtWidgets,QtGui
 
-
 ####Ekranda digit olarak zamanı gösteren timer Sınıfı
-###----------*************----------------
+###----------*************---------------- 
 class Timer(QObject):
     timer_count = pyqtSignal(int)
     bool_count = pyqtSignal(bool)
@@ -28,8 +27,16 @@ class Timer(QObject):
 
 
 class MainPage (QMainWindow, user_interface.face_detection_ui):
+    
+    
+    
+    def get_mac(self):
+        mac_num = uuid.getnode()
+        mac  = str(":".join(re.findall('..', '%012x' % mac_num)))
+        return mac
 
     def __init__(self, parent=None):
+        self.license = False
         super(MainPage, self).__init__(parent)
         self.face_interface()
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -39,6 +46,35 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
         self.setup_fd_ui(self)
         self.show()
         self.setMenuBar(self.ui_menubar)
+        self.check_version()
+
+            
+    def check_version(self):
+        mac_adress = self.get_mac()
+        serial_key = ""
+        with open("serial_key.json", encoding="utf-8") as f:
+            json_object = json.loads(f.read())
+            serial_key = str(json_object["serial_key"])
+            f.close()
+            
+        if serial_key != "":
+            url = "http://www.google.com"
+            timeout = 1
+            try:
+                request = requests.get(url, timeout=timeout)
+                myclients=pymongo.MongoClient("mongodb+srv://forencrypt:Pt-for-cry47@akay.ktm1k.mongodb.net/Akay?retryWrites=true&w=majority", tls=True,tlsAllowInvalidCertificates=True)
+                mydb=myclients["license"]
+                mycollection=mydb["serial-keys"]
+                if mycollection.count_documents({"key":serial_key,"mac-adress":mac_adress}):
+                    self.license = True
+                    self.version_text.setText("Tam Sürüm")
+                    self.ui_menubar.removeAction(self.menu_settings.menuAction())
+                else:
+                    self.license = False
+                    self.version_text.setText("Demo Sürüm")
+            except (requests.ConnectionError, requests.Timeout) as exception:
+                self.critical_messagebox("Hata", "Tam sürümü kullanmak için internet bağlantınızı kontrol ediniz!", QtWidgets.QMessageBox.Critical)
+
 
 
 
@@ -47,7 +83,7 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
         print(str(self.detect_face_image_select_button.whatsThis()))
         detect_image_path = str(self.detect_face_image_select_button.whatsThis())
         if not os.path.isdir(self.output_path_label.text()) or not os.path.isdir(self.input_path_label.text()) or not os.path.isfile(detect_image_path):
-            self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz")
+            self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz", QtWidgets.QMessageBox.Critical)
         else:
             self.progress_gif.setMovie(self.load_gif)
             self.load_gif.start()
@@ -74,6 +110,8 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
             self.worker_fd.input_path = input_folder_path
             self.worker_fd.output_path = output_folder_path
             self.worker_fd.detect_face_image = detect_image_path
+            
+            self.worker_fd.license = self.license
 
             self.worker_fd.stop_bool = False
             self.timer_fd.bool_count = True
@@ -102,6 +140,7 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
 
             self.stop_process_button.setEnabled(True)
             self.menu_files.setEnabled(False)
+            self.menu_settings.setEnabled(False)
             self.analyze_button.setEnabled(False)
             self.input_file_tree.setEnabled(False)
             self.output_file_tree.setEnabled(False)
@@ -129,6 +168,7 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
             self.input_path_label.setEnabled(True)
             self.output_path_label.setEnabled(True)
             self.detect_face_image_select_button.setEnabled(True)
+            self.menu_settings.setEnabled(True)
             self.load_gif.stop()
             self.progress_gif.clear()
             self.timer_thread_fd.quit()
@@ -139,7 +179,7 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
 
     def error_dialog_fd(self, err_strings):
         self.thread_fd.quit()
-        self.critical_messagebox(str(err_strings[0]), str(err_strings[1]))
+        self.critical_messagebox(str(err_strings[0]), str(err_strings[1]), QtWidgets.QMessageBox.Critical)
 
    #facedetect işlemi bitişi
     def worker_fd_finish(self):
@@ -149,9 +189,16 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
             pass
         try:
             if self.worker_fd.stop_bool:
-                self.question_messagebox("İşlem Durduruldu", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b><br>Bu bir demo sürümdür, en fazla 10 görüntü inceleyebilirsiniz.<br><a href='https://www.forencrypt.com/iletisim/'>Tam sürüm için bize ulaşın</a>")
+                if self.license:
+                    self.question_messagebox("İşlem Durduruldu", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b>")
+                else:
+                    self.question_messagebox("İşlem Durduruldu", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b><br>Bu bir demo sürümdür, en fazla 10 görüntü inceleyebilirsiniz.<br><a href='https://www.forencrypt.com/iletisim/'>Tam sürüm için bize ulaşın</a>")
             else:
-                self.question_messagebox("İşlem Bitti", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b><br>Bu bir demo sürümdür, en fazla 10 görüntü inceleyebilirsiniz.<br><a href='https://www.forencrypt.com/iletisim/'>Tam sürüm için bize ulaşın</a>")
+                if self.license:
+                    self.question_messagebox("İşlem Bitti", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b>")
+                else:
+                    self.question_messagebox("İşlem Bitti", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b><br>Bu bir demo sürümdür, en fazla 10 görüntü inceleyebilirsiniz.<br><a href='https://www.forencrypt.com/iletisim/'>Tam sürüm için bize ulaşın</a>")
+
         except:
             pass
    ##
@@ -171,7 +218,6 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
 
             self.add_image(image_path, label)
         except:
-            print("except2")
             self.output_image.setText("Resim Getirelemedi")
    ##
 
@@ -230,18 +276,11 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
    ###-------------
 
 
-
-
 ############# messagebox methodları ######################
 
-
-
-
-
-
-    def critical_messagebox(self, title, msg):
+    def critical_messagebox(self, title, msg, type):
         msgbox = QMessageBox()
-        msgbox.setIcon(QtWidgets.QMessageBox.Critical)
+        msgbox.setIcon(type)
         msgbox.setWindowIcon(QtGui.QIcon("icons/icon.png"))
         msgbox.setWindowTitle(title)
         msgbox.setText(msg)
@@ -267,31 +306,67 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
             webbrowser.open('file:///' + self.worker_fd.output_path)
         elif msgbox.clickedButton() == no_button:
             msgbox.close()
-
-
-
-
-
-
-
-
-
-
-
-
+            
+            
+            
+            
+        
+    def serial_key_bar_click(self):
+        dialog = QInputDialog(self)
+        dialog.setWindowTitle("Seri Numarası")
+        dialog.setLabelText("Seri Numarasını Giriniz")    
+        with open("serial_key.json", encoding="utf-8") as f:
+            json_object = json.loads(f.read())
+            dialog.setTextValue(str(json_object["serial_key"]))
+            f.close()
+        dialog.setOkButtonText("Tamam")
+        dialog.setCancelButtonText("Vazgeç")
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            text = dialog.textValue()
+            url = "http://www.google.com"
+            timeout = 1
+            try:
+                request = requests.get(url, timeout=timeout)
+                myclients=pymongo.MongoClient("mongodb+srv://forencrypt:Pt-for-cry47@akay.ktm1k.mongodb.net/Akay?retryWrites=true&w=majority", tls=True,tlsAllowInvalidCertificates=True)
+                mydb=myclients["license"]
+                mycollection=mydb["serial-keys"]
+                key_db = mycollection.find_one({"key": text})
+                if key_db != None:
+                    if key_db["mac-adress"] == "":
+                        self.license = True
+                        mycollection.update_one(
+                            {"key":text},
+                            {"$set":{
+                                "key":text,
+                                "mac-adress":self.get_mac()
+                            }}
+                        )
+                        json_file = open("serial_key.json", "w+")
+                        json.dump({ "serial_key": text }, json_file) 
+                        json_file.close()
+                        self.critical_messagebox("Harika!", "Uygulamanız tam sürüm olmuştur", QtWidgets.QMessageBox.Information)
+                        self.version_text.setText("Tam Sürüm")
+                        self.license = True
+                        self.ui_menubar.removeAction(self.menu_settings.menuAction())
+                    else: 
+                        if key_db["mac-adress"] != self.get_mac(): 
+                            self.critical_messagebox("Hata", "Girdiğiniz anahtar başkası tarafından kullanılıyor!", QtWidgets.QMessageBox.Critical)
+                        else: 
+                            self.critical_messagebox("Bilgi", "Uygulamanız tam sürüm olmuştur!", QtWidgets.QMessageBox.Information)
+                            self.version_text.setText("Tam Sürüm")    
+                            json_file = open("serial_key.json", "w+")
+                            json.dump({ "serial_key": text }, json_file) 
+                            json_file.close()
+                            self.license = True
+                            self.ui_menubar.removeAction(self.menu_settings.menuAction())
+                else:
+                    self.critical_messagebox("Hata", "Girdiğiniz anahtar doğru değil!", QtWidgets.QMessageBox.Critical)
+            except (requests.ConnectionError, requests.Timeout) as exception:
+                self.critical_messagebox("Hata", "Tam sürümü kullanmak için internet bağlantınızı kontrol ediniz!", QtWidgets.QMessageBox.Critical)
+        else:
+            print("canceled")
 
 ##########################################################
-
-
-
-
-
-
-
-
-
-
-
 
     def dark_theme_select(self):
         app.setStyleSheet(qdarkstyle.load_stylesheet())
@@ -300,6 +375,10 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
     def light_theme_select(self):
 
         app.setStyleSheet("")
+        
+        
+
+
 
 app = QApplication(sys.argv)
 pencere = MainPage()

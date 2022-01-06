@@ -187,6 +187,9 @@ class face_detection_ui(object):
 
         self.lcd_process_timer = QtWidgets.QLCDNumber()
         self.lcd_process_timer.setObjectName("lcd_process_timer")
+        
+        self.version_text = QtWidgets.QLabel("Demo Sürüm")
+        self.version_text.setObjectName("version_text")
 
         self.timer_table_glayout = QtWidgets.QGridLayout()
         self.timer_table_glayout.addWidget(self.info_table_label, 0,0,12,24)
@@ -194,7 +197,8 @@ class face_detection_ui(object):
         self.timer_table_glayout.addWidget(self.progress_bar, 4,26,1,6)
         self.timer_table_glayout.addWidget(self.remaining_process_label, 5,26,1,5)
         self.timer_table_glayout.addWidget(self.lcd_process_timer, 8, 28, 2, 2)
-        self.timer_table_glayout.addWidget(self.empty_label, 0, 32, 12, 2)
+        self.timer_table_glayout.addWidget(self.empty_label, 0, 32, 11, 2)
+        self.timer_table_glayout.addWidget(self.version_text, 11, 32, 1, 2)
 
 
 
@@ -223,48 +227,59 @@ class face_detection_ui(object):
         ###Qmenüler
         self.menu_files = QtWidgets.QMenu(self.ui_menubar)
         self.menu_files.setObjectName("menu_files")
+        self.menu_files.setTitle("Dosya")
 
         self.input_folder_bar = QtWidgets.QAction()
         self.input_folder_bar.setObjectName("input_folder_bar")
+        self.input_folder_bar.setText("Girdi Klasörü")
+        self.input_folder_bar.triggered.connect(self.input_folder_bar_click)
 
         self.output_folder_bar = QtWidgets.QAction()
         self.output_folder_bar.setObjectName("output_folder_bar")
+        self.output_folder_bar.setText("Çıktı Klasörü")
+        self.output_folder_bar.triggered.connect(self.output_folder_bar_click)
 
         self.menu_files.addAction(self.input_folder_bar)
         self.menu_files.addAction(self.output_folder_bar)
 
-
+        #######
         self.menu_themes = QtWidgets.QMenu(self.ui_menubar)
         self.menu_themes.setObjectName("menu_themes")
+        self.menu_themes.setTitle("Temalar")
 
         self.light_theme = QtWidgets.QAction()
         self.light_theme.setObjectName("light_theme")
+        self.light_theme.setText("Light Tema")
+        self.light_theme.triggered.connect(self.light_theme_select)
 
         self.dark_theme = QtWidgets.QAction()
         self.dark_theme.setObjectName("dark_theme")
+        self.dark_theme.setText("Dark Tema")
+        self.dark_theme.triggered.connect(self.dark_theme_select)
 
         self.menu_themes.addAction(self.light_theme)
         self.menu_themes.addAction(self.dark_theme)
+        ########
+
+        self.menu_settings = QtWidgets.QMenu(self.ui_menubar)
+        self.menu_settings.setObjectName("menu_settings")
+        self.menu_settings.setTitle("Ayarlar")
+        
+        self.serial_key_bar = QtWidgets.QAction()
+        self.serial_key_bar.setObjectName("serial_key_bar")
+        self.serial_key_bar.setText("Uygulama Seri Numarası")
+        self.serial_key_bar.triggered.connect(self.serial_key_bar_click)
+        
+        self.menu_settings.addAction(self.serial_key_bar)
+        ###
 
 
-        self.menu_files.setTitle("Dosya")
-        self.menu_themes.setTitle("Temalar")
-
-        self.light_theme.setText("Light Tema")
-        self.dark_theme.setText("Dark Tema")
-        self.input_folder_bar.setText("Girdi Klasörü")
-        self.output_folder_bar.setText("Çıktı Klasörü")
-
-
-        self.input_folder_bar.triggered.connect(self.input_folder_bar_click)
-        self.output_folder_bar.triggered.connect(self.output_folder_bar_click)
-
-        self.dark_theme.triggered.connect(self.dark_theme_select)
-        self.light_theme.triggered.connect(self.light_theme_select)
 
 
         self.ui_menubar.addAction(self.menu_files.menuAction())
         self.ui_menubar.addAction(self.menu_themes.menuAction())
+        self.ui_menubar.addAction(self.menu_settings.menuAction())
+
 
 
 
@@ -308,6 +323,7 @@ class face_detection_ui(object):
         self.stop_process_button.clicked.connect(self.face_detect_stop_button_clicked)
         self.stop_process_button.setEnabled(False)
         #-----
+
 
 
         
