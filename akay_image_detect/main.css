@@ -1,11 +1,11 @@
 QLabel#process_image {
-    border: 2px solid rgb(240, 240, 240);
+    border: 2px solid ;
     border-radius: 3px;
     border-color: black;
 }
 
 QLabel#output_image {
-    border: 2px solid rgb(240, 240, 240);
+    border: 2px solid ;
     border-radius: 3px;
     border-color: black;
 }
