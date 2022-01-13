@@ -67,7 +67,8 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
                 mycollection=mydb["serial-keys"]
                 if mycollection.count_documents({"key":serial_key,"mac-adress":mac_adress}):
                     self.license = True
-                    self.version_text.setText("Tam Sürüm")
+                    key_db = mycollection.find_one({"key": serial_key})
+                    self.version_text.setText(key_db["user"])
                     self.ui_menubar.removeAction(self.menu_settings.menuAction())
                 else:
                     self.license = False
@@ -189,6 +190,7 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
             pass
         try:
             if self.worker_fd.stop_bool:
+                self.remaining_process_label.setText("Durduruldu")
                 if self.license:
                     self.question_messagebox("İşlem Durduruldu", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b>")
                 else:
@@ -207,6 +209,7 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
     def face_detect_stop_button_clicked(self):
         try:
             self.worker_fd.stop_bool = True
+            self.remaining_process_label.setText("Durduruluyor")
         except:
             pass
    ##
@@ -345,7 +348,7 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
                         json.dump({ "serial_key": text }, json_file) 
                         json_file.close()
                         self.critical_messagebox("Harika!", "Uygulamanız tam sürüm olmuştur", QtWidgets.QMessageBox.Information)
-                        self.version_text.setText("Tam Sürüm")
+                        self.version_text.setText(key_db["user"])
                         self.license = True
                         self.ui_menubar.removeAction(self.menu_settings.menuAction())
                     else: 
@@ -353,7 +356,7 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
                             self.critical_messagebox("Hata", "Girdiğiniz anahtar başkası tarafından kullanılıyor!", QtWidgets.QMessageBox.Critical)
                         else: 
                             self.critical_messagebox("Bilgi", "Uygulamanız tam sürüm olmuştur!", QtWidgets.QMessageBox.Information)
-                            self.version_text.setText("Tam Sürüm")    
+                            self.version_text.setText(key_db["user"])    
                             json_file = open("serial_key.json", "w+")
                             json.dump({ "serial_key": text }, json_file) 
                             json_file.close()

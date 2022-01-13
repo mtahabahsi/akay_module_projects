@@ -1,13 +1,15 @@
 QLabel#process_image {
-    border: 2px solid rgb(240, 240, 240);
+    border: 2px solid;
     border-radius: 3px;
     border-color: black;
+    background-color: qlineargradient(x1: 0, x2: 1, stop: 0 orange, stop: 1 pink)
 }
 
 QLabel#output_image {
-    border: 2px solid rgb(240, 240, 240);
+    border: 2px solid;
     border-radius: 3px;
     border-color: black;
+    background-color: qlineargradient(x1: 0, x2: 1, stop: 0 yellow, stop: 1 green)
 }
 
 QLabel#remaining_process_label {

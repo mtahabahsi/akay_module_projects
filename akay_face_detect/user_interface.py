@@ -187,6 +187,7 @@ class face_detection_ui(object):
 
         self.lcd_process_timer = QtWidgets.QLCDNumber()
         self.lcd_process_timer.setObjectName("lcd_process_timer")
+        self.lcd_process_timer.setDigitCount(8)  
         
         self.version_text = QtWidgets.QLabel("Demo Sürüm")
         self.version_text.setObjectName("version_text")
@@ -238,9 +239,16 @@ class face_detection_ui(object):
         self.output_folder_bar.setObjectName("output_folder_bar")
         self.output_folder_bar.setText("Çıktı Klasörü")
         self.output_folder_bar.triggered.connect(self.output_folder_bar_click)
+        
+        
+        self.detect_face_select_bar = QtWidgets.QAction()
+        self.detect_face_select_bar.setObjectName("detect_face_select_bar")
+        self.detect_face_select_bar.setText("İncelenecek Yüz")
+        self.detect_face_select_bar.triggered.connect(self.select_detect_face_image)
 
         self.menu_files.addAction(self.input_folder_bar)
         self.menu_files.addAction(self.output_folder_bar)
+        self.menu_files.addAction(self.detect_face_select_bar)
 
         #######
         self.menu_themes = QtWidgets.QMenu(self.ui_menubar)
@@ -283,11 +291,6 @@ class face_detection_ui(object):
 
 
 
-        self.detect_face_select_bar = QtWidgets.QAction()
-        self.detect_face_select_bar.setObjectName("detect_face_select_bar")
-        self.detect_face_select_bar.setText("İncelenecek Yüz")
-        self.menu_files.addAction(self.detect_face_select_bar)
-        self.detect_face_select_bar.triggered.connect(self.select_detect_face_image)
 
 
 
