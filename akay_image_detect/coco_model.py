@@ -22,6 +22,7 @@ class CocoModel(QObject):
     model_file = bool
 
     fps = float
+    license = bool
 
     def get_classes_turkish(self,detect_classes):
         if self.model_file:
@@ -119,7 +120,7 @@ class CocoModel(QObject):
                     
             self.count = self.count + 1
 
-            self.info_text.emit([str(self.count) +  "/" + str(self.total_picture) , img, detect_class, "Bulundu" if found_bool else "Bulunamadı"])
+            self.info_text.emit([str(self.count) +  "/" + str(self.total_picture) , img, detect_class, "Var" if found_bool else "Yok"])
 
             os.remove(os.path.join(self.output_path, "temp\\" + img.split("\\")[-1]))            
             if os.path.isfile(self.input_path):
@@ -186,6 +187,8 @@ class CocoModel(QObject):
                 for img in images_array:        
                     if self.stop_bool:
                         break
+                    if self.count >= 10 and self.license == False:
+                        break
                     self.image_detect(img)
                 shutil.rmtree(os.path.join(self.output_path, "temp"))
 
@@ -214,7 +217,13 @@ class CocoModel(QObject):
                         b = (b + str(a[0]) + "saat") if int(a[0]) != 0 else b
                         b = (b + str(a[1]) + "dk") if int(a[1]) != 0 else b 
                         b = (b + str(a[2]) + "sn") 
-                        cv2.imwrite(os.path.join(self.output_path, "frames\\" + str(b) +".jpg"), image) # save frame as JPG file
+                        #cv2.imwrite(os.path.join(self.output_path, "frames\\" + str(b) +".jpg"), image) # save frame as JPG file
+                        
+                        im_save_path = os.path.join(self.output_path, "frames\\" + str(b) +".jpg")
+                        is_success, im_buf_arr = cv2.imencode(".jpg", image)
+                        im_buf_arr.tofile(im_save_path)
+                        
+                        
                         self.image_detect(os.path.join(self.output_path, "frames\\" + str(b) + ".jpg"))
                     return hasFrames
                 sec = 0
@@ -223,6 +232,9 @@ class CocoModel(QObject):
                 success = getFrame(sec)
                 while success:
                     if self.stop_bool:
+                        break
+                    #Sadece bir dakika inceleyebilsin
+                    if sec >= 60 and self.license == False:
                         break
                     count = count + 1
                     sec = sec + frameRate

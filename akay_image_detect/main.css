@@ -2,7 +2,6 @@ QLabel#process_image {
     border: 2px solid rgb(240, 240, 240);
     border-radius: 3px;
     border-color: black;
-    /* background-color:qlineargradient( x1:0 y1:0, x2:1 y2:0, stop:0 cyan, stop:1 blue);*/
 }
 
 QLabel#output_image {
@@ -24,7 +23,11 @@ QLabel#output_path_label {
 }
 
 QLCDNumber#lcd_process_timer {
-    background-color: #082567;
+    background-color: #18346C;
+    border: 2px solid rgb(113, 113, 113);
+    border-width: 2px;
+    border-radius: 10px;
+    color: rgb(255, 255, 255);
 }
 
 QLabel#tool_title_label {
@@ -39,17 +42,13 @@ QLabel#tool_title_label {
     padding: 5px 11px 3px 11px;
 }
 
-QComboBox QAbstractItemView::disabled {
-    font-weight: bold;
-    color: red;
-}
-
 QPushButton#analyze_button {
-    border: solid;
-    border-color: red;
+    border: 2px solid rgb(113, 113, 113);
+    border-width: 2px;
     border-radius: 10px;
-    background-color: #002DB3;
+    background-color: #18346C;
     color: white;
+    font-weight: bold;
 }
 
 QPushButton#analyze_button:hover {
@@ -61,11 +60,12 @@ QPushButton#analyze_button:disabled {
 }
 
 QPushButton#stop_process_button {
-    border: solid;
-    border-color: red;
+    border: 2px solid rgb(113, 113, 113);
+    border-width: 2px;
     border-radius: 10px;
     background-color: #B30000;
     color: white;
+    font-weight: bold;
 }
 
 QPushButton#stop_process_button:hover {

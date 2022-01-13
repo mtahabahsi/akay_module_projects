@@ -1,10 +1,10 @@
 import sys
 from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog
 from PyQt5.QtCore import Qt, QObject, pyqtSignal,QThread
 from PyQt5.QtGui import QImage, QPixmap
 import time, os , json
-import user_interface
+import user_interface,re,uuid,pymongo,requests, json
 import qdarkstyle
 import webbrowser
 from coco_dataset_dialog import ChecklistDialog
@@ -33,10 +33,49 @@ class Timer(QObject):
 
 class MainPage (QMainWindow, user_interface.image_detection_ui):
 
+
+    def get_mac(self):
+        mac_num = uuid.getnode()
+        mac  = str(":".join(re.findall('..', '%012x' % mac_num)))
+        return mac
+    
+    
     def __init__(self, parent=None):
+        self.license = False
+        self.user = ""
         super(MainPage, self).__init__(parent)
         self.image_interface()
         self.setAttribute(Qt.WA_DeleteOnClose)
+        
+        
+    def check_version(self):
+        mac_adress = self.get_mac()
+        serial_key = ""
+        with open("serial_key.json", encoding="utf-8") as f:
+            json_object = json.loads(f.read())
+            serial_key = str(json_object["serial_key"])
+            f.close()
+            
+        if serial_key != "":
+            url = "http://www.google.com"
+            timeout = 1
+            try:
+                request = requests.get(url, timeout=timeout)
+                myclients=pymongo.MongoClient("mongodb+srv://forencrypt:Pt-for-cry47@akay.ktm1k.mongodb.net/Akay?retryWrites=true&w=majority", tls=True,tlsAllowInvalidCertificates=True)
+                mydb=myclients["license"]
+                mycollection=mydb["image-detect-serial-keys"]
+                if mycollection.count_documents({"key":serial_key,"mac-adress":mac_adress}):
+                    self.license = True
+                    key_db = mycollection.find_one({"key": serial_key})
+                    self.user = key_db["user"]
+                    self.version_text.setText(self.user)
+                    self.ui_menubar.removeAction(self.menu_settings.menuAction())
+                else:
+                    self.license = False
+                    self.version_text.setText("Demo Sürüm")
+            except (requests.ConnectionError, requests.Timeout) as exception:
+                self.critical_messagebox("Hata", "Tam sürümü kullanmak için internet bağlantınızı kontrol ediniz!", QtWidgets.QMessageBox.Critical)
+
 
 
     ##Ses inceleme arayüzü başlatma 
@@ -45,14 +84,18 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
         self.goruntu_inceleme_bar.setEnabled(False)
         self.show()
         self.setMenuBar(self.ui_menubar)
+        if self.license != True:
+            self.check_version()
         ChecklistDialog.clean_checked(self)
-
+    
 
     def video_interface(self):
         self.setup_vfd_ui(self)
         self.video_inceleme_bar.setEnabled(False)
         self.show()
         self.setMenuBar(self.ui_menubar)
+        if self.license != True:
+            self.check_version()
         ChecklistDialog.clean_checked(self)
 
 
@@ -87,7 +130,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
 
                 self.change_choose_label()
         else:            
-            self.critical_messagebox("Hata", "Forencrypt modelleri seçiliyken bu nesneleri seçemezsiniz")
+            self.critical_messagebox("Hata", "Forencrypt modelleri seçiliyken bu nesneleri seçemezsiniz", QtWidgets.QMessageBox.Critical)
             
 
     def forencrypt_button_clicked(self):
@@ -102,7 +145,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
             if self.form.exec_():
                 self.change_choose_label()
         else:
-            self.critical_messagebox("Hata", "Coco modelleri seçiliyken bu nesneleri seçemezsiniz")
+            self.critical_messagebox("Hata", "Coco modelleri seçiliyken bu nesneleri seçemezsiniz", QtWidgets.QMessageBox.Critical)
   #
  
 
@@ -164,9 +207,9 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
     def video_frame_analyze_button_clicked(self):
         try:
             if not os.path.isdir(self.output_path_label.text()) or not os.path.isfile(self.input_path_label.text()) or not "mp4" in self.input_path_label.text():
-                self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz")
+                self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz", QtWidgets.QMessageBox.Critical)
             elif self.choose_class_label.text() == "Aranacak nesneler : ":
-               self.critical_messagebox("Hata", "Lütfen Aranacak Nesneleri Seçiniz")
+               self.critical_messagebox("Hata", "Lütfen Aranacak Nesneleri Seçiniz", QtWidgets.QMessageBox.Critical)
             else:
                 fps = 1.0 / float(self.frame_combobox.currentText())
                 
@@ -179,9 +222,9 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
     def image_detection_analyze_button_clicked(self):
         try:
             if not os.path.isdir(self.output_path_label.text()) or not os.path.isdir(self.input_path_label.text()):
-                self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz")
+                self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz", QtWidgets.QMessageBox.Critical)
             elif self.choose_class_label.text() == "Aranacak nesneler : ":
-                self.critical_messagebox("Hata", "Lütfen Aranacak Nesneleri Seçiniz")
+                self.critical_messagebox("Hata", "Lütfen Aranacak Nesneleri Seçiniz", QtWidgets.QMessageBox.Critical)
             else:
                 self.start_image_analyze()
         except:
@@ -202,7 +245,8 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
         for dirs in self.input_path_label.text().split("/"):
             input_folder_path = os.path.join(input_folder_path , dirs)
                 
-
+        self.progress_gif.setMovie(self.load_gif)
+        self.load_gif.start()
 
         self.timer_thread = QThread()
         self.thread = QThread()
@@ -220,6 +264,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
         self.worker.input_path = input_folder_path
         self.worker.output_path = output_folder_path
         self.worker.stop_bool = False
+        self.worker.license = self.license
         self.timer.bool_count = True
         if "CDS" in self.choose_class_label.text():
             self.worker.model_file = True
@@ -295,6 +340,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
             self.forencrypt_model_button.setEnabled(True)
             self.menu_files.setEnabled(True)
             self.menu_tools.setEnabled(True)
+            self.progress_gif.clear()
             self.timer_thread.quit()
             try:
                 self.frame_combobox.setEnabled(True)
@@ -313,9 +359,17 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
             pass
         try:
             if self.worker.stop_bool:
-                self.question_messagebox("İşlem durduruldu", "Çıktı Klasörüne Gitmek İster Misiniz?")
+                self.remaining_process_label.setText("Durduruldu")
+                if self.license:
+                    self.question_messagebox("İşlem Durduruldu", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b>")
+                else:
+                    self.question_messagebox("İşlem Durduruldu", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b><br>Bu bir demo sürümdür, en fazla 10 görüntü ya da 1 dakika video inceleyebilirsiniz.<br><a href='https://www.forencrypt.com/iletisim/'>Tam sürüm için bize ulaşın</a>")
             else:
-                self.question_messagebox("İşlem bitti", "Çıktı Klasörüne Gitmek İster Misiniz?")
+                if self.license:
+                    self.question_messagebox("İşlem Bitti", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b>")
+                else:
+                    self.question_messagebox("İşlem Bitti", "<b>Çıktı Klasörüne Gitmek İster Misiniz?</b><br>Bu bir demo sürümdür, en fazla 10 görüntü ya da 1 dakika video inceleyebilirsiniz.<br><a href='https://www.forencrypt.com/iletisim/'>Tam sürüm için bize ulaşın</a>")
+
         except:
             pass
    #
@@ -326,6 +380,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
     def stop_button_clicked(self):
         try:
             self.worker.stop_bool = True
+            self.remaining_process_label.setText("Durduruluyor")
         except:
             pass
    #
@@ -342,11 +397,12 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
                 
                 self.info_table_label.insertRow(rowPosition)
                 self.info_table_label.setItem(rowPosition , 0, QtWidgets.QTableWidgetItem(os.path.basename(info_array[1])))
-                if info_array[2] == "":
-                    self.info_table_label.setItem(rowPosition , 1, QtWidgets.QTableWidgetItem("Bulunamadı"))
-                else:
-                    self.info_table_label.setItem(rowPosition , 1, QtWidgets.QTableWidgetItem(info_array[2]))
+                self.info_table_label.setItem(rowPosition , 1, QtWidgets.QTableWidgetItem(info_array[2]))
                 self.info_table_label.setItem(rowPosition , 2, QtWidgets.QTableWidgetItem(info_array[3]))
+                if info_array[3] == "Var":
+                        self.info_table_label.item(rowPosition, 2).setBackground(QtGui.QColor(0, 255, 0))
+                else:
+                    self.info_table_label.item(rowPosition, 2).setBackground(QtGui.QColor(255,0,0))
                 item = self.info_table_label.item(rowPosition, 0)
                 item.setWhatsThis(info_array[1])
                 #self.process_text.append(info_array[1])
@@ -387,9 +443,9 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
 
 
 
-    def critical_messagebox(self, title, msg):
+    def critical_messagebox(self, title, msg, type):
         msgbox = QMessageBox()
-        msgbox.setIcon(QtWidgets.QMessageBox.Critical)
+        msgbox.setIcon(type)
         msgbox.setWindowIcon(QtGui.QIcon("icons/icon.png"))
         msgbox.setWindowTitle(title)
         msgbox.setText(msg)
@@ -430,6 +486,66 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
 
 ##########################################################
 
+
+            
+            
+        
+    def serial_key_bar_click(self):
+        dialog = QInputDialog(self)
+        dialog.setWindowTitle("Seri Numarası")
+        dialog.setLabelText("Seri Numarasını Giriniz")    
+        with open("serial_key.json", encoding="utf-8") as f:
+            json_object = json.loads(f.read())
+            dialog.setTextValue(str(json_object["serial_key"]))
+            f.close()
+        dialog.setOkButtonText("Tamam")
+        dialog.setCancelButtonText("Vazgeç")
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            text = dialog.textValue()
+            url = "http://www.google.com"
+            timeout = 1
+            try:
+                request = requests.get(url, timeout=timeout)
+                myclients=pymongo.MongoClient("mongodb+srv://forencrypt:Pt-for-cry47@akay.ktm1k.mongodb.net/Akay?retryWrites=true&w=majority", tls=True,tlsAllowInvalidCertificates=True)
+                mydb=myclients["license"]
+                mycollection=mydb["image-detect-serial-keys"]
+                key_db = mycollection.find_one({"key": text})
+                if key_db != None:
+                    if key_db["mac-adress"] == "":
+                        self.license = True
+                        mycollection.update_one(
+                            {"key":text},
+                            {"$set":{
+                                "key":text,
+                                "mac-adress":self.get_mac()
+                            }}
+                        )
+                        json_file = open("serial_key.json", "w+")
+                        json.dump({ "serial_key": text }, json_file) 
+                        json_file.close()
+                        self.critical_messagebox("Harika!", "Uygulamanız tam sürüm olmuştur", QtWidgets.QMessageBox.Information)
+                        self.user = key_db["user"]
+                        self.version_text.setText(self.user)
+                        self.license = True
+                        self.ui_menubar.removeAction(self.menu_settings.menuAction())
+                    else: 
+                        if key_db["mac-adress"] != self.get_mac(): 
+                            self.critical_messagebox("Hata", "Girdiğiniz anahtar başkası tarafından kullanılıyor!", QtWidgets.QMessageBox.Critical)
+                        else: 
+                            self.critical_messagebox("Bilgi", "Uygulamanız tam sürüm olmuştur!", QtWidgets.QMessageBox.Information)
+                            self.user = key_db["user"]
+                            self.version_text.setText(self.user)    
+                            json_file = open("serial_key.json", "w+")
+                            json.dump({ "serial_key": text }, json_file) 
+                            json_file.close()
+                            self.license = True
+                            self.ui_menubar.removeAction(self.menu_settings.menuAction())
+                else:
+                    self.critical_messagebox("Hata", "Girdiğiniz anahtar doğru değil!", QtWidgets.QMessageBox.Critical)
+            except (requests.ConnectionError, requests.Timeout) as exception:
+                self.critical_messagebox("Hata", "Tam sürümü kullanmak için internet bağlantınızı kontrol ediniz!", QtWidgets.QMessageBox.Critical)
+        else:
+            print("canceled")
 
 
 

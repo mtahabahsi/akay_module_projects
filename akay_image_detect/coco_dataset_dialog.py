@@ -26,20 +26,22 @@ class ChecklistDialog(QtWidgets.QDialog):
 
         self.listView.setModel(self.model)
         self.listView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.listView.clicked.connect(self.list_item_click)
+        #self.listView.clicked.connect(self.list_item_click)
         
         
         
         
         self.okButton = QtWidgets.QPushButton("Tamam")
         self.cancelButton = QtWidgets.QPushButton("İptal Et")
-        self.unselectButton = QtWidgets.QPushButton("Seçililerin Hepsini Kaldır")
+        self.allselectButton = QtWidgets.QPushButton("Hepsini Seç")
+        self.unselectButton = QtWidgets.QPushButton("Hepsini Kaldır")
 
         all_layout = QtWidgets.QGridLayout()
-        all_layout.addWidget(self.listView, 0 , 0 , 20, 12)
-        all_layout.addWidget(self.okButton,20, 0, 2,  4)
-        all_layout.addWidget(self.cancelButton,  20, 4, 2,  4)
-        all_layout.addWidget(self.unselectButton,20, 8, 2,  4)
+        all_layout.addWidget(self.listView, 0 , 0 , 24, 12)
+        all_layout.addWidget(self.okButton,26, 0, 2,  6)
+        all_layout.addWidget(self.cancelButton,  26, 6, 2,  6)
+        all_layout.addWidget(self.allselectButton,  24, 0, 2,  6)
+        all_layout.addWidget(self.unselectButton,24, 6, 2,  6)
 
 
         
@@ -50,6 +52,7 @@ class ChecklistDialog(QtWidgets.QDialog):
 
         self.okButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)
+        self.allselectButton.clicked.connect(self.allselect)
         self.unselectButton.clicked.connect(self.unselect)
         
     def reject(self):
@@ -80,16 +83,21 @@ class ChecklistDialog(QtWidgets.QDialog):
         
 
     def unselect(self):
-        i = 0
-        while self.model.item(i):
+        for i in range(self.model.rowCount()):
             item = self.model.item(i)
-            item.setCheckState(False)
-            i += 1  
+            item.setCheckState(QtCore.Qt.Unchecked)
+    
+    def allselect(self):
+        for i in range(self.model.rowCount()):
+            item = self.model.item(i)
+            item.setCheckState(QtCore.Qt.Checked)
 
-    def list_item_click(self, index):
-        item = self.listView.selectedIndexes()[0]
-        check = QtCore.Qt.Checked if item.model().itemFromIndex(index).checkState() == QtCore.Qt.Unchecked else QtCore.Qt.Unchecked
-        item.model().itemFromIndex(index).setCheckState(check)
+    #def list_item_click(self, index):
+
+    #    item = self.listView.selectedIndexes()[0]
+    #    check = QtCore.Qt.Checked if item.model().itemFromIndex(index).checkState() == QtCore.Qt.Unchecked else QtCore.Qt.Unchecked
+    #    item.model().itemFromIndex(index).setCheckState(check)
+
 
 
     def clean_checked(self):

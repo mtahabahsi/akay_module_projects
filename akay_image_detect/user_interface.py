@@ -1,3 +1,4 @@
+from platform import version
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys, os, webbrowser
 from PyQt5.QtCore import QModelIndex, Qt
@@ -11,7 +12,7 @@ class common_features_ui(object):
     def __init__(self, pencere):
         pencere.empty_label = QtWidgets.QLabel()
         pencere.empty_label.setObjectName("empty_label")
-        pencere.setWindowTitle("AKAY")
+        pencere.setWindowTitle("AKAY - Nesne Tanıma")
         pencere.setWindowIcon(QtGui.QIcon('icons/icon.png'))
         self.model = QtWidgets.QFileSystemModel()
 
@@ -40,7 +41,7 @@ class common_features_ui(object):
 
         ##
 
-        pencere.input_path_label = QtWidgets.QLineEdit("C:/Users/MSI/Desktop/girdi")
+        pencere.input_path_label = QtWidgets.QLineEdit("Lütfen Seçin")
         pencere.input_path_label.setObjectName("input_path_label")
         pencere.input_path_label.setCompleter(pencere.file_path_completer)
 
@@ -59,7 +60,7 @@ class common_features_ui(object):
         pencere.output_file_tree.doubleClicked.connect(pencere.output_tree_clicked)
         #------
 
-        pencere.output_path_label = QtWidgets.QLineEdit("C:/Users/MSI/Desktop/cikti")
+        pencere.output_path_label = QtWidgets.QLineEdit("Lütfen Seçin")
         pencere.output_path_label.setObjectName("output_path_label")
         pencere.output_path_label.setCompleter(pencere.file_path_completer)
 
@@ -82,12 +83,21 @@ class common_features_ui(object):
         pencere.output_image = QtWidgets.QLabel()
         pencere.output_image.setObjectName("output_image")
         pencere.output_image.setAlignment(QtCore.Qt.AlignCenter)
+        
+        pencere.progress_gif = QtWidgets.QLabel()
+        pencere.progress_gif.setObjectName("progress_gif")
+        pencere.progress_gif.setAlignment(QtCore.Qt.AlignCenter)
+        
+        logo_path = "icons/load.gif"
+        pencere.load_gif = QtGui.QMovie(logo_path)
 
+        #pencere.progress_gif.setMovie(pencere.load_gif)
+        #pencere.load_gif.start()
         pencere.image_glayout = QtWidgets.QGridLayout()
 
         pencere.image_glayout.addWidget(pencere.empty_label,0,0 , 1, 2)
         pencere.image_glayout.addWidget(pencere.process_image,0,2, 1, 10)
-        pencere.image_glayout.addWidget(pencere.empty_label,0,12, 1, 2)
+        pencere.image_glayout.addWidget(pencere.progress_gif,0,12, 1, 2)
         pencere.image_glayout.addWidget(pencere.output_image,0,14, 1, 10)
         pencere.image_glayout.addWidget(pencere.empty_label,0,24, 1, 2)
 
@@ -137,6 +147,16 @@ class common_features_ui(object):
         pencere.menu_files.setTitle("Dosya")
         pencere.menu_tools.setTitle("Araçlar")
         pencere.menu_themes.setTitle("Temalar")
+        
+        pencere.menu_settings = QtWidgets.QMenu(pencere.ui_menubar)
+        pencere.menu_settings.setObjectName("menu_settings")
+        pencere.menu_settings.setTitle("Ayarlar")
+        
+        pencere.serial_key_bar = QtWidgets.QAction()
+        pencere.serial_key_bar.setObjectName("serial_key_bar")
+        pencere.serial_key_bar.setText("Uygulama Seri Numarası")
+        
+        pencere.menu_settings.addAction(pencere.serial_key_bar)
 
         pencere.video_inceleme_bar.setText("Video İnceleme Aracı")
         pencere.goruntu_inceleme_bar.setText("Görüntü İnceleme Aracı")
@@ -149,14 +169,17 @@ class common_features_ui(object):
         pencere.output_folder_bar.triggered.connect(pencere.output_folder_bar_click)
         pencere.video_inceleme_bar.triggered.connect(pencere.video_interface)
         pencere.goruntu_inceleme_bar.triggered.connect(pencere.image_interface)
+        pencere.serial_key_bar.triggered.connect(pencere.serial_key_bar_click)
         pencere.dark_theme.triggered.connect(pencere.dark_theme_select)
         pencere.light_theme.triggered.connect(pencere.light_theme_select)
 
         ###Qmenüler
-
+        
         pencere.ui_menubar.addAction(pencere.menu_files.menuAction())
         pencere.ui_menubar.addAction(pencere.menu_tools.menuAction())
         pencere.ui_menubar.addAction(pencere.menu_themes.menuAction())
+        if pencere.license != True:
+            pencere.ui_menubar.addAction(pencere.menu_settings.menuAction())
 
     def right_down_field(self, pencere):        
         pencere.info_table_label = QtWidgets.QTableWidget()
@@ -189,14 +212,23 @@ class common_features_ui(object):
 
         pencere.lcd_process_timer = QtWidgets.QLCDNumber()
         pencere.lcd_process_timer.setObjectName("lcd_process_timer")
+        pencere.lcd_process_timer.setDigitCount(8)  
+        
+        pencere.version_text = QtWidgets.QLabel("Demo Sürüm")
+        pencere.version_text.setObjectName("version_text")
+        if pencere.license:
+            pencere.version_text.setText(pencere.user)            
 
+        
+        
         pencere.timer_table_glayout = QtWidgets.QGridLayout()
         pencere.timer_table_glayout.addWidget(pencere.info_table_label, 0,0,12,24)
         pencere.timer_table_glayout.addWidget(pencere.empty_label, 0, 24, 12, 2)
         pencere.timer_table_glayout.addWidget(pencere.progress_bar, 4,26,1,6)
-        pencere.timer_table_glayout.addWidget(pencere.remaining_process_label, 5,26,1,6)
+        pencere.timer_table_glayout.addWidget(pencere.remaining_process_label, 5,26,1,5)
         pencere.timer_table_glayout.addWidget(pencere.lcd_process_timer, 8, 28, 2, 2)
-        pencere.timer_table_glayout.addWidget(pencere.empty_label, 0, 32, 12, 2)
+        pencere.timer_table_glayout.addWidget(pencere.empty_label, 0, 32, 11, 2)
+        pencere.timer_table_glayout.addWidget(pencere.version_text, 11, 32, 1, 2)
 
 
 
@@ -227,6 +259,7 @@ class image_detection_ui(object):
         ###############################
 
         self.common.left_field(self)
+        self.input_file_text.setText("Lütfen Klasör Seçiniz")
         ##########################
 
         self.common.image_field(self)
@@ -241,9 +274,13 @@ class image_detection_ui(object):
 
         self.forencrypt_model_button = QtWidgets.QPushButton("Forencrypt Model")
         self.forencrypt_model_button.setObjectName("forencrypt_model_button")
+        button_icon = QtGui.QPixmap("icons/for-logo.png");
+        self.forencrypt_model_button.setIcon(QtGui.QIcon(button_icon))
 
         self.cocodataset_button = QtWidgets.QPushButton("Coco Data Set")
         self.cocodataset_button.setObjectName("cocodataset_button")
+        button_icon = QtGui.QPixmap("icons/coco-logo.png");
+        self.cocodataset_button.setIcon(QtGui.QIcon(button_icon))
 
         self.analyze_button = QtWidgets.QPushButton("Analiz Et")
         self.analyze_button.setObjectName("analyze_button")
@@ -259,7 +296,7 @@ class image_detection_ui(object):
         buttons_classes_glayout = QtWidgets.QGridLayout()
         buttons_classes_glayout.addWidget(self.choose_class_label, 0 , 0 , 3, 10)
         buttons_classes_glayout.addWidget(self.forencrypt_model_button, 3, 0 , 2, 8)
-        buttons_classes_glayout.addWidget(self.cocodataset_button, 2, 8 , 4, 2)
+        buttons_classes_glayout.addWidget(self.cocodataset_button, 3, 8 , 2, 2)
         buttons_classes_glayout.addWidget(self.empty_label, 0, 10, 6, 2)
         buttons_classes_glayout.addWidget(self.analyze_button, 2, 12, 4, 3)
         buttons_classes_glayout.addWidget(self.stop_process_button, 2, 15, 4, 3)
@@ -349,8 +386,7 @@ class image_detection_ui(object):
         ##########################
 
         self.common.left_field(self)
-
-        self.input_path_label.setText("Lütfen video seçin")
+        self.input_file_text.setText("Lütfen Video Seçiniz")
         ##########################
 
         self.common.image_field(self)
@@ -371,10 +407,15 @@ class image_detection_ui(object):
 
         self.forencrypt_model_button = QtWidgets.QPushButton("Forencrypt Model")
         self.forencrypt_model_button.setObjectName("forencrypt_model_button")
+        button_icon = QtGui.QPixmap("icons/for-logo.png");
+        self.forencrypt_model_button.setIcon(QtGui.QIcon(button_icon))
 
         self.cocodataset_button = QtWidgets.QPushButton("Coco Data Set")
         self.cocodataset_button.setObjectName("cocodataset_button")
-
+        button_icon = QtGui.QPixmap("icons/coco-logo.png");
+        self.cocodataset_button.setIcon(QtGui.QIcon(button_icon))
+        
+        
         self.analyze_button = QtWidgets.QPushButton("Analiz Et")
         self.analyze_button.setObjectName("analyze_button")
         self.analyze_button.setMinimumWidth(50)
@@ -477,7 +518,7 @@ class image_detection_ui(object):
     def input_folder_bar_click(self):
         response = QtWidgets.QFileDialog.getExistingDirectory(
             self,
-            caption='Klasör Seçiniz'
+            caption='Girdi Klasörünü Seçiniz'
         )
 
         if str(response)  != "":
@@ -489,7 +530,7 @@ class image_detection_ui(object):
     def output_folder_bar_click(self):
         response = QtWidgets.QFileDialog.getExistingDirectory(
             self,
-            caption='Klasör Seçiniz'
+            caption='Çıktı Klasörünü Seçiniz'
         )
 
         if str(response)  != "":
@@ -549,7 +590,7 @@ class image_detection_ui(object):
         file_filter = 'Video Dosyası (*.mp4)'
         response = QtWidgets.QFileDialog.getOpenFileName(
             parent=self,
-            caption='Video Dosyası Seçin',
+            caption='Video Dosyası Seçiniz',
             directory=os.getcwd(),
             filter=file_filter,
             initialFilter='Video Dosyası (*.mp4)'
