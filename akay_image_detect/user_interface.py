@@ -272,12 +272,12 @@ class image_detection_ui(object):
         self.choose_class_label.setObjectName("choose_class_label")
 
 
-        self.forencrypt_model_button = QtWidgets.QPushButton("Forencrypt Model")
+        self.forencrypt_model_button = QtWidgets.QPushButton("Yaygın Suç Nesneleri")
         self.forencrypt_model_button.setObjectName("forencrypt_model_button")
         button_icon = QtGui.QPixmap("icons/for-logo.png");
         self.forencrypt_model_button.setIcon(QtGui.QIcon(button_icon))
 
-        self.cocodataset_button = QtWidgets.QPushButton("Coco Data Set")
+        self.cocodataset_button = QtWidgets.QPushButton("Nesne Listesi")
         self.cocodataset_button.setObjectName("cocodataset_button")
         button_icon = QtGui.QPixmap("icons/coco-logo.png");
         self.cocodataset_button.setIcon(QtGui.QIcon(button_icon))
@@ -405,12 +405,12 @@ class image_detection_ui(object):
         self.choose_class_label.setObjectName("choose_class_label")
 
 
-        self.forencrypt_model_button = QtWidgets.QPushButton("Forencrypt Model")
+        self.forencrypt_model_button = QtWidgets.QPushButton("Yaygın Suç Nesneleri")
         self.forencrypt_model_button.setObjectName("forencrypt_model_button")
         button_icon = QtGui.QPixmap("icons/for-logo.png");
         self.forencrypt_model_button.setIcon(QtGui.QIcon(button_icon))
 
-        self.cocodataset_button = QtWidgets.QPushButton("Coco Data Set")
+        self.cocodataset_button = QtWidgets.QPushButton("Nesne Listesi")
         self.cocodataset_button.setObjectName("cocodataset_button")
         button_icon = QtGui.QPixmap("icons/coco-logo.png");
         self.cocodataset_button.setIcon(QtGui.QIcon(button_icon))

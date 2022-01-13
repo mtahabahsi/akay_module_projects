@@ -208,7 +208,7 @@ class face_recognition(QObject):
                 pass
 
             try:
-                f = open(os.path.join(self.output_path, "akad_sonuclar.txt"), "w")
+                f = open(os.path.join(self.output_path, "akay_sonuclar.txt"), "w")
                 f.write(status + "\nBaşlangıç Zamanı==" + start_time.strftime("%d/%m/%Y %H:%M:%S") + "\n" + "Bitiş Zamanı==" + finish_time.strftime("%d/%m/%Y %H:%M:%S") + "\n" + "Geçen Süre=="  + str(finish_time - start_time) + "\n" + 
                     "Kaynak Dosya Yolu==" + self.input_path + "\n" + "Hedef Dosya Yolu==" + self.output_path + "\nAranan Yüz==" + str(self.detect_face_image) + "\n" + "Toplam Resim Sayısı==" + str(len(all_images)) + 
                     "\n" + "İncelenen Resim Sayısı==" + str(count))

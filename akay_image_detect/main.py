@@ -125,12 +125,12 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
                     temp_bool = False  
         if temp_bool:
 
-            self.form = ChecklistDialog(class_json_file="json_files/coco_classes.json", name="Coco Dataset Sınıfları")
+            self.form = ChecklistDialog(class_json_file="json_files/coco_classes.json", name="Nesne Listesi")
             if self.form.exec_():
 
                 self.change_choose_label()
         else:            
-            self.critical_messagebox("Hata", "Forencrypt modelleri seçiliyken bu nesneleri seçemezsiniz", QtWidgets.QMessageBox.Critical)
+            self.critical_messagebox("Hata", "Yaygın suç nesneleri seçiliyken bu nesneleri seçemezsiniz", QtWidgets.QMessageBox.Critical)
             
 
     def forencrypt_button_clicked(self):
@@ -141,11 +141,11 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
                 if json_object["check"] == "True":
                     temp_bool = False  
         if temp_bool:
-            self.form = ChecklistDialog(class_json_file="json_files/custom_classes.json", name="Forencrypt Sınıfları")
+            self.form = ChecklistDialog(class_json_file="json_files/custom_classes.json", name="Yaygın Suç Nesnleri")
             if self.form.exec_():
                 self.change_choose_label()
         else:
-            self.critical_messagebox("Hata", "Coco modelleri seçiliyken bu nesneleri seçemezsiniz", QtWidgets.QMessageBox.Critical)
+            self.critical_messagebox("Hata", "Nesne listesi seçiliyken bu nesneleri seçemezsiniz", QtWidgets.QMessageBox.Critical)
   #
  
 
