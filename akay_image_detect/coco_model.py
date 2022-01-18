@@ -166,7 +166,7 @@ class CocoModel(QObject):
     
 
     def run(self):
-
+        
         start_time = datetime.now()
 
         self.get_searched_objects()
@@ -252,7 +252,7 @@ class CocoModel(QObject):
                 status = "Durduruldu"
             else:
                 status = ":::Hepsi incelendi:::"
-                self.info_text.emit([str(self.total_picture)  + "/" + str(self.total_picture) , "empty","empty"])
+                #self.info_text.emit([str(self.total_picture)  + "/" + str(self.total_picture) , "empty","empty"])
         except:
             pass
 

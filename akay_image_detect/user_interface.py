@@ -200,7 +200,7 @@ class common_features_ui(object):
         pencere.info_table_label.setColumnWidth(0,250)
         pencere.info_table_label.setColumnWidth(1,250)
         pencere.info_table_label.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-        pencere.info_table_label.cellDoubleClicked.connect(pencere.open_image)
+        
         #----------------------------
 
         pencere.remaining_process_label = QtWidgets.QLabel("İşlenen görüntü / Toplam görüntü")
@@ -240,7 +240,7 @@ class image_detection_ui(object):
     
     screen_width = size.width()*0.7
     screen_height = size.height()*0.7
-    def setup_id_ui(self, MainWindow, image_mount_bool = False):
+    def setup_id_ui(self, MainWindow):
 
         ##Ortak öğeleri tek yerde toplayan sınıf 
         self.common = common_features_ui(self)
@@ -295,8 +295,8 @@ class image_detection_ui(object):
 
         buttons_classes_glayout = QtWidgets.QGridLayout()
         buttons_classes_glayout.addWidget(self.choose_class_label, 0 , 0 , 3, 10)
-        buttons_classes_glayout.addWidget(self.forencrypt_model_button, 3, 0 , 2, 8)
-        buttons_classes_glayout.addWidget(self.cocodataset_button, 3, 8 , 2, 2)
+        buttons_classes_glayout.addWidget(self.forencrypt_model_button, 3, 0 , 2, 5)
+        buttons_classes_glayout.addWidget(self.cocodataset_button, 3, 5 , 2, 5)
         buttons_classes_glayout.addWidget(self.empty_label, 0, 10, 6, 2)
         buttons_classes_glayout.addWidget(self.analyze_button, 2, 12, 4, 3)
         buttons_classes_glayout.addWidget(self.stop_process_button, 2, 15, 4, 3)
@@ -351,7 +351,7 @@ class image_detection_ui(object):
         
         self.cocodataset_button.clicked.connect(self.coco_button_clicked)
         self.forencrypt_model_button.clicked.connect(self.forencrypt_button_clicked)
-
+        self.info_table_label.cellDoubleClicked.connect(self.open_image)
         self.input_file_tree.doubleClicked.connect(self.input_tree_clicked)
 
         self.input_folder_bar.triggered.connect(self.input_folder_bar_click)
@@ -394,7 +394,6 @@ class image_detection_ui(object):
         ##################################
 
         self.common.right_down_field(self)
-
         self.remaining_process_label.setText("İşlenen frame / Toplam frame")
 
         ##########################
@@ -440,8 +439,8 @@ class image_detection_ui(object):
 
         buttons_classes_glayout = QtWidgets.QGridLayout()
         buttons_classes_glayout.addWidget(self.choose_class_label, 0 , 0 , 3, 10)
-        buttons_classes_glayout.addWidget(self.forencrypt_model_button, 3, 0 , 2, 5)
-        buttons_classes_glayout.addWidget(self.cocodataset_button, 3, 5 , 2, 2)
+        buttons_classes_glayout.addWidget(self.forencrypt_model_button, 3, 0 , 2, 4)
+        buttons_classes_glayout.addWidget(self.cocodataset_button, 3, 4 , 2, 3)
         buttons_classes_glayout.addWidget(self.fps_label, 3, 7 , 2, 1)
         buttons_classes_glayout.addWidget(self.frame_combobox, 3, 8 , 2, 2)
         buttons_classes_glayout.addWidget(self.empty_label, 0, 10, 6, 2)
@@ -549,7 +548,7 @@ class image_detection_ui(object):
         except:
             pass
    ##---------
-
+    
 
    ##Girdi videosunun seçildiği fonksyion
     def input_tree_clicked_video(self, index):

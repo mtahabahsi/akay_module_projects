@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog
 from PyQt5.QtCore import Qt, QObject, pyqtSignal,QThread
 from PyQt5.QtGui import QImage, QPixmap
-import time, os , json
+import time, os , json, datetime
 import user_interface,re,uuid,pymongo,requests, json
 import qdarkstyle
 import webbrowser
@@ -168,9 +168,12 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
                         nesneler += json_object["turkish"] + ", "
 
             #En sondaki virgülü kaldırmak için
-            nesneler = nesneler[:-2]
-            self.choose_class_label.setText("Aranacak nesneler : " + nesneler)
 
+            nesneler = nesneler[:-2]
+            if len(nesneler) > 80:
+                self.choose_class_label.setText("Aranacak nesneler : " + nesneler[:80] + "...")
+            else:
+                self.choose_class_label.setText("Aranacak nesneler : " + nesneler)
         except:
             pass
    #
@@ -240,6 +243,12 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
         output_folder_path = self.output_path_label.text().split("/")[0] + "/"
         for dirs in self.output_path_label.text().split("/"):
             output_folder_path = os.path.join(output_folder_path , dirs)
+
+        ##Çıktı klasörü zaman damgası ile oluşturuluyor 
+        starting_time = datetime.datetime.now()
+        path = os.path.join(output_folder_path, "AKAY-" + str(starting_time).split(".")[0].replace(" ", "-").replace(":","-"))
+        os.makedirs(path, exist_ok=True)
+        output_folder_path = path
 
         input_folder_path = self.input_path_label.text().split("/")[0] + "/"
         for dirs in self.input_path_label.text().split("/"):
@@ -552,6 +561,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
 
 
     def dark_theme_select(self):
+        #buraya css eklenebilir
         app.setStyleSheet(qdarkstyle.load_stylesheet())
 
     
