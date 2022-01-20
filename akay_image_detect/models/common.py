@@ -210,8 +210,8 @@ class Concat(nn.Module):
 
 class NMS(nn.Module):
     # Non-Maximum Suppression (NMS) module
-    conf = 0.25  # confidence threshold
-    iou = 0.45  # IoU threshold
+    conf = 0.5  # confidence threshold
+    iou = 0.5  # IoU threshold
     classes = None  # (optional list) filter by class
 
     def __init__(self):
@@ -223,8 +223,8 @@ class NMS(nn.Module):
 
 class autoShape(nn.Module):
     # input-robust model wrapper for passing cv2/np/PIL/torch inputs. Includes preprocessing, inference and NMS
-    conf = 0.25  # NMS confidence threshold
-    iou = 0.45  # NMS IoU threshold
+    conf = 0.5  # NMS confidence threshold
+    iou = 0.5  # NMS IoU threshold
     classes = None  # (optional list) filter by class
 
     def __init__(self, model):

@@ -10,6 +10,12 @@ QLabel#output_image {
     border-color: black;
 }
 
+
+QTableWidget#info_table_label {
+    font-weight: bold;
+}
+
+
 QLabel#remaining_process_label {
     text-align: center;
 }

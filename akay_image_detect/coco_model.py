@@ -69,7 +69,7 @@ class CocoModel(QObject):
     def get_image_files(self, path):
         img_formats = ['bmp', 'jpg', 'jpeg', 'png', 'tif', 'tiff', 'dng', 'webp', 'mpo'] 
         files = []
-        self.info_text.emit(["Resimler Toplanıyor...", "empty","empty"])
+        self.info_text.emit(["Görüntüler Toplanıyor...", "empty","empty"])
         for image_file in glob.iglob(os.path.join(path, "**"), recursive=True):
             if self.stop_bool:
                 files = []
@@ -136,7 +136,7 @@ class CocoModel(QObject):
         self.objects_turkish = []
         ##Yolo modeli ise
         if self.model_file:
-            self.model = torch.hub.load("weight_files", "yolov5m", source="local")
+            self.model = torch.hub.load("weight_files", "yolov5x", source="local")
             with open("json_files/coco_classes.json", encoding="utf-8") as f:
                 json_content = json.loads(f.read())
                 for json_object in json_content["classes"]:
@@ -259,8 +259,8 @@ class CocoModel(QObject):
         try:
             f = open(os.path.join(self.output_path, "akay_sonuclar.txt"), "w")
             f.write(status + "\nBaşlangıç Zamanı==" + start_time.strftime("%d/%m/%Y %H:%M:%S") + "\n" + "Bitiş Zamanı==" + finish_time.strftime("%d/%m/%Y %H:%M:%S") + "\n" + "Geçen Süre=="  + str(finish_time - start_time) + "\n" + 
-                "Kaynak Dosya Yolu==" + self.input_path + "\n" + "Hedef Dosya Yolu==" + self.output_path + "\nAranan Nesneler==" + str(self.objects_turkish) + "\n" + "Toplam Resim Sayısı==" + str(self.total_picture) + 
-                "\n" + "İncelenen Resim Sayısı==" + str(self.count))
+                "Kaynak Dosya Yolu==" + self.input_path + "\n" + "Hedef Dosya Yolu==" + self.output_path + "\nAranan Nesneler==" + str(self.objects_turkish) + "\n" + "Toplam Görüntü Sayısı==" + str(self.total_picture) + 
+                "\n" + "İncelenen Görüntü Sayısı==" + str(self.count))
             f.close()
         except:
             pass

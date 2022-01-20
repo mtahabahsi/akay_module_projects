@@ -111,7 +111,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
             image_label.setAlignment(Qt.AlignCenter)
             image_label.setPixmap(QPixmap(pixmap))
         except ZeroDivisionError:
-            image_label.setText("Resim getirilirken bir hata oluştu")
+            image_label.setText("Görüntüler getirilirken bir hata oluştu")
    ###-------------
 
    #Sınıf seçme butonlar
@@ -130,7 +130,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
 
                 self.change_choose_label()
         else:            
-            self.critical_messagebox("Hata", "Yaygın suç nesneleri seçiliyken bu nesneleri seçemezsiniz", QtWidgets.QMessageBox.Critical)
+            self.critical_messagebox("Hata", "Yaygın Suç Nesneleri Seçiliyken Bu Nesneleri Seçemezsiniz.", QtWidgets.QMessageBox.Critical)
             
 
     def forencrypt_button_clicked(self):
@@ -145,7 +145,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
             if self.form.exec_():
                 self.change_choose_label()
         else:
-            self.critical_messagebox("Hata", "Nesne listesi seçiliyken bu nesneleri seçemezsiniz", QtWidgets.QMessageBox.Critical)
+            self.critical_messagebox("Hata", "Nesne Listesi Seçiliyken Bu Nesneleri Seçemezsiniz.", QtWidgets.QMessageBox.Critical)
   #
  
 
@@ -209,10 +209,12 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
    ##Video aracından inceleme butonuna basıldığında  
     def video_frame_analyze_button_clicked(self):
         try:
-            if not os.path.isdir(self.output_path_label.text()) or not os.path.isfile(self.input_path_label.text()) or not "mp4" in self.input_path_label.text():
-                self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz", QtWidgets.QMessageBox.Critical)
+            if not os.path.isfile(self.input_path_label.text()) or not "mp4" in self.input_path_label.text():
+                self.critical_messagebox("Video Hatası", "İncelenecek videoyu kontrol ediniz!", QtWidgets.QMessageBox.Critical)
+            elif not os.path.isdir(self.output_path_label.text()):
+                self.critical_messagebox("Klasör Hatası", "Çıktıların atılacağı klasörü kontrol ediniz!", QtWidgets.QMessageBox.Critical)
             elif self.choose_class_label.text() == "Aranacak nesneler : ":
-               self.critical_messagebox("Hata", "Lütfen Aranacak Nesneleri Seçiniz", QtWidgets.QMessageBox.Critical)
+               self.critical_messagebox("Hata", "Lütfen Aramak İstediğiniz Nesneleri Seçiniz.", QtWidgets.QMessageBox.Critical)
             else:
                 fps = 1.0 / float(self.frame_combobox.currentText())
                 
@@ -224,10 +226,12 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
    ##resim aracında inceleme butonunun kodları
     def image_detection_analyze_button_clicked(self):
         try:
-            if not os.path.isdir(self.output_path_label.text()) or not os.path.isdir(self.input_path_label.text()):
-                self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz", QtWidgets.QMessageBox.Critical)
+            if not os.path.isdir(self.input_path_label.text()):
+                self.critical_messagebox("Klasör Hatası", "İncelenecek klasörü kontrol ediniz!", QtWidgets.QMessageBox.Critical)
+            elif not os.path.isdir(self.output_path_label.text()):
+                self.critical_messagebox("Klasör Hatası", "Çıktıların atılacağı klasörü kontrol ediniz!", QtWidgets.QMessageBox.Critical)
             elif self.choose_class_label.text() == "Aranacak nesneler : ":
-                self.critical_messagebox("Hata", "Lütfen Aranacak Nesneleri Seçiniz", QtWidgets.QMessageBox.Critical)
+                self.critical_messagebox("Hata", "Lütfen Aramak İstediğiniz Nesneleri Seçiniz.", QtWidgets.QMessageBox.Critical)
             else:
                 self.start_image_analyze()
         except:
@@ -305,6 +309,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
         self.stop_process_button.setEnabled(True)
         self.menu_tools.setEnabled(False)
         self.menu_files.setEnabled(False)
+        self.menu_settings.setEnabled(False)
         self.analyze_button.setEnabled(False)
         self.input_file_tree.setEnabled(False)
         self.output_file_tree.setEnabled(False)
@@ -349,6 +354,7 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
             self.forencrypt_model_button.setEnabled(True)
             self.menu_files.setEnabled(True)
             self.menu_tools.setEnabled(True)
+            self.menu_settings.setEnabled(True)
             self.progress_gif.clear()
             self.timer_thread.quit()
             try:
@@ -432,8 +438,8 @@ class MainPage (QMainWindow, user_interface.image_detection_ui):
             self.add_image(image_paths[0], i_image)
             self.add_image(im, o_image)
         except:
-            self.process_image.setText("Resim Getirelemedi")
-            self.output_image.setText("Resim Getirelemedi")
+            self.process_image.setText("Görüntü Getirelemedi")
+            self.output_image.setText("Görüntü Getirelemedi")
    ##
 
 
