@@ -83,8 +83,12 @@ class MainPage (QMainWindow, user_interface.face_detection_ui):
     def face_detect_button_clicked(self):
         print(str(self.detect_face_image_select_button.whatsThis()))
         detect_image_path = str(self.detect_face_image_select_button.whatsThis())
-        if not os.path.isdir(self.output_path_label.text()) or not os.path.isdir(self.input_path_label.text()) or not os.path.isfile(detect_image_path):
-            self.critical_messagebox("Klasör Hatası", "Lütfen girdi ve çıktıyı doğru seçiniz", QtWidgets.QMessageBox.Critical)
+        if not os.path.isdir(self.output_path_label.text()):
+            self.critical_messagebox("Klasör Hatası", "Lütfen çıktı klasör seçimini kontrol ediniz!", QtWidgets.QMessageBox.Critical)
+        elif not os.path.isdir(self.input_path_label.text()) :
+            self.critical_messagebox("Klasör Hatası", "Lütfen girdi klasör seçimini kontrol ediniz!", QtWidgets.QMessageBox.Critical)
+        elif not os.path.isfile(detect_image_path):
+            self.critical_messagebox("Klasör Hatası", "Lütfen aranacak yüz seçimini kontrol ediniz!", QtWidgets.QMessageBox.Critical)
         else:
             self.progress_gif.setMovie(self.load_gif)
             self.load_gif.start()
