@@ -4,6 +4,7 @@ import sys, os, webbrowser
 
 
 
+
 class face_detection_ui(object):
     app = QtWidgets.QApplication(sys.argv)
     screen = app.primaryScreen()
@@ -65,7 +66,7 @@ class face_detection_ui(object):
         self.input_path_label.setObjectName("input_path_label")
         self.input_path_label.setCompleter(self.file_path_completer)
 
-        self.detect_face_image_select_button = QtWidgets.QPushButton("İncelenecek Yüz")
+        self.detect_face_image_select_button = QtWidgets.QPushButton("Aranacak Kişiyi Seçiniz")
         self.detect_face_image_select_button.setObjectName("detect_face_image_select_button")       
 
 

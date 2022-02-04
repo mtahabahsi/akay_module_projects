@@ -88,140 +88,137 @@ class face_recognition(QObject):
 
         ##Girdi resminden yüzün çıkartılması 
         #image = cv2.imread(self.detect_face_image)
-        try:
-            image = cv2.imdecode(np.fromfile(self.detect_face_image, dtype=np.uint8),
-                    cv2.IMREAD_UNCHANGED)
+        image = cv2.imdecode(np.fromfile(self.detect_face_image, dtype=np.uint8),
+                   cv2.IMREAD_UNCHANGED)
 
-            (h, w) = image.shape[:2]
-            blob = cv2.dnn.blobFromImage(cv2.resize(image, (300, 300)), 1.0, (300, 300), (104.0, 177.0, 123.0))
+        (h, w) = image.shape[:2]
+        blob = cv2.dnn.blobFromImage(cv2.resize(image, (300, 300)), 1.0, (300, 300), (104.0, 177.0, 123.0))
 
-            self.net.setInput(blob)
-            detections = self.net.forward()
+        self.net.setInput(blob)
+        detections = self.net.forward()
+        count = 0
+        for i in range(0, detections.shape[2]):
+
+            confidence = detections[0, 0, i, 2]
+            
+            if confidence > 0.5:
+                count += 1
+
+                box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+                (startX, startY, endX, endY) = box.astype("int")
+
+                ss = image[startY:endY, startX:endX]
+                
+
+                im_save_path = os.path.join(self.output_path, "aranan_yuz.jpg")
+                is_success, im_buf_arr = cv2.imencode(".jpg", ss)
+                im_buf_arr.tofile(im_save_path)
+                        
+        if len(all_images) == 0:
+            self.detect_error.emit(["Resim Dosyası Yok",  "Girdiğiniz klasörde resim dosyası bulunamadı"])
+        elif count == 0:
+            self.detect_error.emit(["Girdi Resminde Yüz Yok",  "Girdiğiniz resimde herhangi bir yüz bulunamadı"])
+        elif count > 1:
+            self.detect_error.emit(["Girdi Resmi",  "Girdiğiniz resimde birden fazla yüz var"])
+        else:
             count = 0
-            for i in range(0, detections.shape[2]):
+            for file in all_images:
+                if self.stop_bool:
+                    break
 
-                confidence = detections[0, 0, i, 2]
-                
-                if confidence > 0.5:
-                    count += 1
 
-                    box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-                    (startX, startY, endX, endY) = box.astype("int")
+                self.change_image.emit(file)
 
-                    ss = image[startY:endY, startX:endX]
-                    
+                try:
+                    found = False
+                    #image = cv2.imread(file)
 
-                    im_save_path = os.path.join(self.output_path, "aranan_yuz.jpg")
-                    is_success, im_buf_arr = cv2.imencode(".jpg", ss)
-                    im_buf_arr.tofile(im_save_path)
+                    image = cv2.imdecode(np.fromfile(file, dtype=np.uint8),
+                            cv2.IMREAD_UNCHANGED)
+
+                    (h, w) = image.shape[:2]
+                    blob = cv2.dnn.blobFromImage(cv2.resize(image, (300, 300)), 1.0, (300, 300), (104.0, 177.0, 123.0))
+
+                    self.net.setInput(blob)
+                    detections = self.net.forward()
+                    for i in range(0, detections.shape[2]):
+                        if self.stop_bool:
+                            break
+                        
+                        
+                        try:
+
+                            confidence = detections[0, 0, i, 2]
                             
-            if len(all_images) == 0:
-                self.detect_error.emit(["Görüntü Dosyası Yok",  "İncelenecek klasörde görüntü dosyası bulunamadı!"])
-            elif count == 0:
-                self.detect_error.emit(["Girilen Görüntüde Yüz Yok",  "İncelenecek yüzün seçildiği görüntüde yüz bulunamadı!"])
-            elif count > 1:
-                self.detect_error.emit(["Girilen Görüntüde Birden Fazla Yüz Var",  "İncelenecek yüzün seçildiği görüntüde birden fazla yüz var!<br>Lütfen tek bir kişiyi içeren görüntü seçiniz!"])
-            else:
-                count = 0
-                for file in all_images:
-                    if self.stop_bool:
-                        break
+                            if confidence > 0.5:
 
 
-                    self.change_image.emit(file)
+                                box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+                                (startX, startY, endX, endY) = box.astype("int")
 
-                    try:
-                        found = False
-                        #image = cv2.imread(file)
-
-                        image = cv2.imdecode(np.fromfile(file, dtype=np.uint8),
-                                cv2.IMREAD_UNCHANGED)
-
-                        (h, w) = image.shape[:2]
-                        blob = cv2.dnn.blobFromImage(cv2.resize(image, (300, 300)), 1.0, (300, 300), (104.0, 177.0, 123.0))
-
-                        self.net.setInput(blob)
-                        detections = self.net.forward()
-                        for i in range(0, detections.shape[2]):
-                            if self.stop_bool:
-                                break
-                            
-                            
-                            try:
-
-                                confidence = detections[0, 0, i, 2]
+                                ss = image[startY:endY, startX:endX]
                                 
-                                if confidence > 0.5:
+                                im_save_path = os.path.join(self.output_path, "temp.jpg")
+                                # encode the im_resize into the im_buf_arr, which is a one-dimensional ndarray
+                                is_success, im_buf_arr = cv2.imencode(".jpg", ss)
+                                im_buf_arr.tofile(im_save_path)
+
+                                distance = self.get_images_distance(os.path.join(self.output_path, "aranan_yuz.jpg"), os.path.join(self.output_path, "temp.jpg"))
+
+                                if distance < 0.4: 
+                                    print("Bulundu")
+                                    found = True
+
+                                os.remove(os.path.join(self.output_path, "temp.jpg"))
 
 
-                                    box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-                                    (startX, startY, endX, endY) = box.astype("int")
+                        except:
+                            pass
 
-                                    ss = image[startY:endY, startX:endX]
-                                    
-                                    im_save_path = os.path.join(self.output_path, "temp.jpg")
-                                    # encode the im_resize into the im_buf_arr, which is a one-dimensional ndarray
-                                    is_success, im_buf_arr = cv2.imencode(".jpg", ss)
-                                    im_buf_arr.tofile(im_save_path)
-
-                                    distance = self.get_images_distance(os.path.join(self.output_path, "aranan_yuz.jpg"), os.path.join(self.output_path, "temp.jpg"))
-
-                                    if distance < 0.4: 
-                                        print("Bulundu")
-                                        found = True
-
-                                    os.remove(os.path.join(self.output_path, "temp.jpg"))
+                    excel_array = [self.detect_face_image, file, "Var" if found else "Yok"]
+                    self.datas.loc[count] = excel_array
+                    self.info_text.emit([str(count + 1) +  "/" + str(len(all_images)) , str(file), "Var" if found else "Yok"])
+                    if found:
+                        shutil.copy2(file, os.path.join(self.output_path, "bulunanlar"))
 
 
-                            except:
-                                pass
-
-                        excel_array = [self.detect_face_image, file, "Var" if found else "Yok"]
-                        self.datas.loc[count] = excel_array
-                        self.info_text.emit([str(count + 1) +  "/" + str(len(all_images)) , str(file), "Var" if found else "Yok"])
-                        if found:
-                            shutil.copy2(file, os.path.join(self.output_path, "bulunanlar"))
-
-
-                    except:
-                        self.info_text.emit([str(count + 1) +  "/" + str(len(all_images)) , str(file), "Yok"])
-                        self.datas.loc[count] = [self.detect_face_image, file, "Yok"]
-                        pass
-                    
-                    count += 1
-
-                    #Demo sürüm özelliği
-                    if count >= 10 and self.license == False:
-                        break
-
-
-
-
-                finish_time = datetime.now()
-
-                try:
-                    if self.stop_bool:
-                        status = "Durduruldu"
-                    else:
-                        status = ":::İnceleme Tamamlandı:::"
-                        #self.info_text.emit([str(len(all_images))  + "/" + str(len(all_images)) , "empty","empty"])
                 except:
-                    pass
-
-                try:
-                    f = open(os.path.join(self.output_path, "akay_sonuclar.txt"), "w")
-                    f.write(status + "\nBaşlangıç Zamanı==" + start_time.strftime("%d/%m/%Y %H:%M:%S") + "\n" + "Bitiş Zamanı==" + finish_time.strftime("%d/%m/%Y %H:%M:%S") + "\n" + "Geçen Süre=="  + str(finish_time - start_time) + "\n" + 
-                        "Kaynak Dosya Yolu==" + self.input_path + "\n" + "Hedef Dosya Yolu==" + self.output_path + "\nAranan Yüz==" + str(self.detect_face_image) + "\n" + "Toplam Resim Sayısı==" + str(len(all_images)) + 
-                        "\n" + "İncelenen Resim Sayısı==" + str(count))
-                    f.close()
-                except:
+                    self.info_text.emit([str(count + 1) +  "/" + str(len(all_images)) , str(file), "Yok"])
+                    self.datas.loc[count] = [self.detect_face_image, file, "Yok"]
                     pass
                 
-                try:
-                    self.datas.to_excel(os.path.join(self.output_path, "sonuclar.xlsx"))
-                except:
-                    pass
+                count += 1
 
-                self.finished.emit()
-        except:
-            self.detect_error.emit(["Görüntü Okuma Hatası",  "Seçtiğiniz görüntü dosyası bozuk.Lütfen farklı bir görüntü deneyin."])
+                #Demo sürüm özelliği
+                if count >= 10 and self.license == False:
+                    break
+
+
+
+
+            finish_time = datetime.now()
+
+            try:
+                if self.stop_bool:
+                    status = "Durduruldu"
+                else:
+                    status = ":::İnceleme Tamamlandı:::"
+                    #self.info_text.emit([str(len(all_images))  + "/" + str(len(all_images)) , "empty","empty"])
+            except:
+                pass
+
+            try:
+                f = open(os.path.join(self.output_path, "akay_sonuclar.txt"), "w")
+                f.write(status + "\nBaşlangıç Zamanı==" + start_time.strftime("%d/%m/%Y %H:%M:%S") + "\n" + "Bitiş Zamanı==" + finish_time.strftime("%d/%m/%Y %H:%M:%S") + "\n" + "Geçen Süre=="  + str(finish_time - start_time) + "\n" + 
+                    "Kaynak Dosya Yolu==" + self.input_path + "\n" + "Hedef Dosya Yolu==" + self.output_path + "\nAranan Yüz==" + str(self.detect_face_image) + "\n" + "Toplam Resim Sayısı==" + str(len(all_images)) + 
+                    "\n" + "İncelenen Resim Sayısı==" + str(count))
+                f.close()
+            except:
+                pass
+            
+            try:
+                self.datas.to_excel(os.path.join(self.output_path, "sonuclar.xlsx"))
+            except:
+                pass
+
+            self.finished.emit()
