@@ -211,7 +211,7 @@ class Concat(nn.Module):
 class NMS(nn.Module):
     # Non-Maximum Suppression (NMS) module
     conf = 0.5  # confidence threshold
-    iou = 0.5  # IoU threshold
+    iou = 0.5 # IoU threshold
     classes = None  # (optional list) filter by class
 
     def __init__(self):

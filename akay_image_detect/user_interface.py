@@ -1,8 +1,6 @@
-from platform import version
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys, os, webbrowser
-from PyQt5.QtCore import QModelIndex, Qt
-
+from os.path import expanduser
 
 
 
@@ -25,7 +23,7 @@ class common_features_ui(object):
         pencere.file_path_completer = QtWidgets.QCompleter(pencere)
         pencere.file_path_completer.setModel(QtWidgets.QDirModel(pencere.file_path_completer))
 
-        pencere.input_file_text = QtWidgets.QLabel("İncelenecek Klasörü Seçiniz")
+        pencere.input_file_text = QtWidgets.QLabel("Analiz Edilecek Klasörü Seçiniz")
         pencere.input_file_text.setObjectName("input_file_text")
 
         pencere.input_file_tree = QtWidgets.QTreeView()
@@ -41,11 +39,11 @@ class common_features_ui(object):
 
         ##
 
-        pencere.input_path_label = QtWidgets.QLineEdit("Lütfen Seçin")
+        pencere.input_path_label = QtWidgets.QLineEdit(os.path.join(os.getenv('APPDATA'), "Akay Nesne Tanıma", "Girdi Klasörü"))
         pencere.input_path_label.setObjectName("input_path_label")
         pencere.input_path_label.setCompleter(pencere.file_path_completer)
 
-        pencere.output_file_text = QtWidgets.QLabel("Çıktıların atılacağı klasörü seçiniz")
+        pencere.output_file_text = QtWidgets.QLabel("Çıktıların Atılacağı Klasörü Seçiniz")
         pencere.output_file_text.setObjectName("output_file_text")
 
         pencere.output_file_tree = QtWidgets.QTreeView()
@@ -60,7 +58,7 @@ class common_features_ui(object):
         pencere.output_file_tree.doubleClicked.connect(pencere.output_tree_clicked)
         #------
 
-        pencere.output_path_label = QtWidgets.QLineEdit("Lütfen Seçin")
+        pencere.output_path_label = QtWidgets.QLineEdit(os.path.join(os.getenv('APPDATA'), "Akay Nesne Tanıma", "Çıktı Klasörü"))
         pencere.output_path_label.setObjectName("output_path_label")
         pencere.output_path_label.setCompleter(pencere.file_path_completer)
 
@@ -154,9 +152,13 @@ class common_features_ui(object):
         
         pencere.serial_key_bar = QtWidgets.QAction()
         pencere.serial_key_bar.setObjectName("serial_key_bar")
-        pencere.serial_key_bar.setText("Uygulama Seri Numarası")
+        pencere.serial_key_bar.setText("Ürün Etkinleştirme")
         
-        pencere.menu_settings.addAction(pencere.serial_key_bar)
+        pencere.usage_doc = QtWidgets.QAction()
+        pencere.usage_doc.setObjectName("serial_key_bar")
+        pencere.usage_doc.setText("Kullanım Kılavuzu")
+        
+        pencere.menu_settings.addAction(pencere.usage_doc)
 
         pencere.video_inceleme_bar.setText("Video İnceleme Aracı")
         pencere.goruntu_inceleme_bar.setText("Görüntü İnceleme Aracı")
@@ -170,6 +172,7 @@ class common_features_ui(object):
         pencere.video_inceleme_bar.triggered.connect(pencere.video_interface)
         pencere.goruntu_inceleme_bar.triggered.connect(pencere.image_interface)
         pencere.serial_key_bar.triggered.connect(pencere.serial_key_bar_click)
+        pencere.usage_doc.triggered.connect(pencere.usage_doc_click)
         pencere.dark_theme.triggered.connect(pencere.dark_theme_select)
         pencere.light_theme.triggered.connect(pencere.light_theme_select)
 
@@ -178,8 +181,9 @@ class common_features_ui(object):
         pencere.ui_menubar.addAction(pencere.menu_files.menuAction())
         pencere.ui_menubar.addAction(pencere.menu_tools.menuAction())
         pencere.ui_menubar.addAction(pencere.menu_themes.menuAction())
+        pencere.ui_menubar.addAction(pencere.menu_settings.menuAction())
         if pencere.license != True:
-            pencere.ui_menubar.addAction(pencere.menu_settings.menuAction())
+            pencere.menu_settings.addAction(pencere.serial_key_bar)
 
     def right_down_field(self, pencere):        
         pencere.info_table_label = QtWidgets.QTableWidget()
@@ -259,7 +263,6 @@ class image_detection_ui(object):
         ###############################
 
         self.common.left_field(self)
-        self.input_file_text.setText("Lütfen Klasör Seçiniz")
         ##########################
 
         self.common.image_field(self)
@@ -386,7 +389,8 @@ class image_detection_ui(object):
         ##########################
 
         self.common.left_field(self)
-        self.input_file_text.setText("Lütfen Video Seçiniz")
+        self.input_file_text.setText("İncelenecek Videoyu Seçiniz")
+        self.input_path_label.setText(os.path.join(os.getenv('APPDATA'), "Akay Nesne Tanıma", "Girdi Klasörü", "ornek.mp4"))
         ##########################
 
         self.common.image_field(self)
@@ -517,25 +521,23 @@ class image_detection_ui(object):
     def input_folder_bar_click(self):
         response = QtWidgets.QFileDialog.getExistingDirectory(
             self,
-            caption='Girdi Klasörünü Seçiniz'
+            caption='Girdi Klasörünü Seçiniz',
+            directory= expanduser("~")
         )
 
         if str(response)  != "":
             self.input_path_label.setText(str(response))
-        else:
-            self.input_path_label.setText("Lütfen Klasör Seçiniz")
 
 
     def output_folder_bar_click(self):
         response = QtWidgets.QFileDialog.getExistingDirectory(
             self,
-            caption='Çıktı Klasörünü Seçiniz'
+            caption='Çıktı Klasörünü Seçiniz',
+            directory= expanduser("~"),
         )
 
         if str(response)  != "":
             self.output_path_label.setText(str(response))
-        else:
-            self.output_path_label.setText("Lütfen Klasör Seçiniz")
 
 
     ##Girdi klaösrünün seçildiği fonksyion
@@ -543,8 +545,7 @@ class image_detection_ui(object):
         try:
             if os.path.isdir(self.common.model.filePath(index)):
                 self.input_path_label.setText(self.common.model.filePath(index))
-            else: 
-                self.input_path_label.setText("Lütfen Klasör Seçiniz")
+
         except:
             pass
    ##---------
@@ -555,8 +556,7 @@ class image_detection_ui(object):
         try:
             if os.path.isfile(self.common.model.filePath(index)):
                 self.input_path_label.setText(self.common.model.filePath(index))
-            else: 
-                self.input_path_label.setText("Lütfen Video Seçiniz")
+
         except:
             pass
    ##---------
@@ -578,8 +578,7 @@ class image_detection_ui(object):
         try:
             if os.path.isdir(self.common.model.filePath(index)):
                 self.output_path_label.setText(self.common.model.filePath(index))
-            else: 
-                self.output_path_label.setText(1, "Lütfen Klasör Seçiniz")
+
         except:
             pass
    ##----------
@@ -590,12 +589,10 @@ class image_detection_ui(object):
         response = QtWidgets.QFileDialog.getOpenFileName(
             parent=self,
             caption='Video Dosyası Seçiniz',
-            directory=os.getcwd(),
+            directory= expanduser("~"),
             filter=file_filter,
             initialFilter='Video Dosyası (*.mp4)'
         )
-        if str(response)  != "":
+        if str(response[0])  != "":
             self.input_path_label.setText(str(response[0]))
-        else:
-            self.input_path_label.setText("Lütfen Video Seçiniz")
 

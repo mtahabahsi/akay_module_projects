@@ -2,22 +2,27 @@ QLabel#process_image {
     border: 2px solid;
     border-radius: 50px;
     border-color: black;
+    
 }
 
 QLabel#output_image {
     border: 2px solid;
     border-radius: 50px;
     border-color: black;
+   
 }
 
 
 QTableWidget#info_table_label {
     font-weight: bold;
+  
+ 
 }
 
 
 QLabel#remaining_process_label {
     text-align: center;
+    
 }
 
 QLabel#input_path_label {
@@ -62,7 +67,7 @@ QPushButton#analyze_button:hover {
 }
 
 QPushButton#analyze_button:disabled {
-    background-color: #BFCFFF;
+    background-color: #2b5ae4;
 }
 
 QPushButton#stop_process_button {
@@ -75,9 +80,9 @@ QPushButton#stop_process_button {
 }
 
 QPushButton#stop_process_button:hover {
-    background-color: #FF0000;
+    background-color: #d30707;
 }
 
 QPushButton#stop_process_button:disabled {
-    background-color: #FFBFBF;
+    background-color: #d30707;
 }

@@ -21,6 +21,8 @@ class CocoModel(QObject):
     output_path = str
     model_file = bool
 
+    detect_error = pyqtSignal(list)
+
     fps = float
     license = bool
 
@@ -122,7 +124,7 @@ class CocoModel(QObject):
 
             self.info_text.emit([str(self.count) +  "/" + str(self.total_picture) , img, detect_class, "Var" if found_bool else "Yok"])
 
-            os.remove(os.path.join(self.output_path, "temp\\" + img.split("\\")[-1]))            
+            os.remove(os.path.join(self.output_path, "temp\\" + img.split("\\")[-1].split(".")[0] + ".jpg"))            
             if os.path.isfile(self.input_path):
                 os.remove(os.path.join(img))
 
@@ -161,8 +163,8 @@ class CocoModel(QObject):
             os.makedirs(path, exist_ok=True)
 
         ###cikti resimlerinin atılacağı klasör 
-            path = os.path.join(self.output_path, "temp")
-            os.makedirs(path, exist_ok=True)
+        path = os.path.join(self.output_path, "temp")
+        os.makedirs(path, exist_ok=True)
     
 
     def run(self):
@@ -184,6 +186,9 @@ class CocoModel(QObject):
             if os.path.isdir(self.input_path):
                 images_array = self.get_image_files(self.input_path)
                 self.total_picture = len(images_array)
+                if len(images_array) == 0:
+                    self.detect_error.emit(["Görüntü Yok",  "İncelenmesini İstediğiniz Klasörde Görüntü Dosyası Bulunamadı!"])
+                    return
                 for img in images_array:        
                     if self.stop_bool:
                         break
@@ -195,13 +200,6 @@ class CocoModel(QObject):
 
 
             elif os.path.isfile(self.input_path): 
-                path = os.path.join(self.output_path, "frames")
-                os.makedirs(path, exist_ok=True)
-                vidcap = cv2.VideoCapture(self.input_path)
-                saniye = float(vidcap.get(cv2.CAP_PROP_FRAME_COUNT)) / float(vidcap.get(cv2.CAP_PROP_FPS))
-                our_frame = int(saniye / self.fps)
-                self.total_picture = our_frame
-
                 def getFrame(sec):
                     vidcap.set(cv2.CAP_PROP_POS_MSEC,sec*1000)
                     hasFrames,image = vidcap.read()
@@ -226,6 +224,18 @@ class CocoModel(QObject):
                         
                         self.image_detect(os.path.join(self.output_path, "frames\\" + str(b) + ".jpg"))
                     return hasFrames
+
+                try:
+                    path = os.path.join(self.output_path, "frames")
+                    os.makedirs(path, exist_ok=True)
+                    vidcap = cv2.VideoCapture(self.input_path)
+                    saniye = float(vidcap.get(cv2.CAP_PROP_FRAME_COUNT)) / float(vidcap.get(cv2.CAP_PROP_FPS))
+                    our_frame = int(saniye / self.fps)
+                    self.total_picture = our_frame + 1
+                except:
+                    self.detect_error.emit(["Hata",  "İncelenecek Video Dosyası Bozuk!"])
+                    return
+
                 sec = 0
                 frameRate = self.fps #//it will capture image in each 0.5 second
                 count=1
@@ -242,7 +252,6 @@ class CocoModel(QObject):
                     success = getFrame(sec)
                 shutil.rmtree(os.path.join(self.output_path, "temp"))
                 shutil.rmtree(os.path.join(self.output_path, "frames"))
-                
 
                     
         finish_time = datetime.now()
